@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "lavanda.applications",
+  "name": "Applications Grid",
+  "version": "1.0.0",
+  "author": "Omarchy / Raúl Chiclano",
+  "description": "Minimal application launcher button",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Applications Grid",
+    "category": "Compositor",
+    "allowMultiple": false
+  }
+}

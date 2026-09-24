@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "lavanda.clock",
+  "name": "Elegant Clock",
+  "version": "1.0.0",
+  "author": "Omarchy / Raúl Chiclano",
+  "description": "Date/time label with a calendar popup",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Elegant Clock",
+    "description": "Date/time label with a calendar popup",
+    "category": "Time",
+    "allowMultiple": false
+  },
+  "omarchy": {
+    "clonedFrom": "omarchy.clock"
+  }
+}

@@ -1,0 +1,3 @@
+# Appearance of Ctrl+R only. The selected command is never rewritten.
+# Numbers are dimmed; matching command fields retain normal brightness.
+export FZF_CTRL_R_OPTS="--height=55% --min-height=12 --layout=reverse --border=rounded --border-label=' Historial ' --border-label-pos=3 --padding=1,1 --prompt='Buscar › ' --info=inline-right --pointer='▌' --gap=1 --gap-line='┄' --wrap --highlight-line --delimiter='\t' --nth=2.. --color='bg:-1,fg:dim:#F2EFFA,nth:regular,bg+:#393249,fg+:#F2EFFA,hl:#B4A1F5,hl+:#DDD0FF,border:#716384,label:#B4A1F5,prompt:#B4A1F5,pointer:#B4A1F5,marker:#B4A1F5,info:#A69BB8,spinner:#B4A1F5,separator:#403A50,gap-line:#393449,gutter:-1'"

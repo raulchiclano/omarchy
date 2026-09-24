@@ -1,0 +1,55 @@
+{
+  "centerAnchor": "lavanda.clock",
+  "layout": {
+    "center": [
+      {
+        "format": "ddd HH:mm",
+        "formatAlt": "d MMMM 'W'ww yyyy",
+        "id": "lavanda.clock",
+        "verticalFormat": "HH\n—\nmm"
+      }
+    ],
+    "left": [
+      {
+        "id": "lavanda.applications"
+      },
+      {
+        "id": "lavanda.workspaces"
+      }
+    ],
+    "right": [
+      {
+        "id": "omarchy.tray"
+      },
+      {
+        "id": "lavanda.agents"
+      },
+      {
+        "id": "omarchy.indicators"
+      },
+      {
+        "id": "omarchy.keyboard-layout"
+      },
+      {
+        "id": "omarchy.system-update"
+      },
+      {
+        "id": "omarchy.bluetooth"
+      },
+      {
+        "id": "lavanda.network"
+      },
+      {
+        "id": "lavanda.audio"
+      },
+      {
+        "id": "lavanda.monitor"
+      },
+      {
+        "id": "omarchy.power"
+      }
+    ]
+  },
+  "position": "top",
+  "transparent": true
+}
