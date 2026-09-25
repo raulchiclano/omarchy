@@ -1,15 +1,16 @@
 {
   "repository": "raulchiclano/hyprland-dock",
-  "revision": "734419bdea5c4109dff423c54a7585fa3a7e8e9f",
+  "revision": "8aff201c5aef017189ac402165927e8a21d50000",
   "files": {
     "shell.qml": "5a3daf8d189de106ea74e05d47a578c211979e203218d32139443b5a84dde5aa",
     "DockHost.qml": "f2f23b52e8f8fdb046b5788a6496f6e74a9cf84c07ef4507f16af2a85ee9fe16",
     "LICENSE": "3333be61cff8f46a68a883978fff0a6a2a993c3f434396c54482413ce9f63416",
     "components/Dock.qml": "7e8919db9f5b4eca6ca2aeaf4fdd9da6230af89d238143de916f7abfbbea4f53",
-    "components/DockAppPicker.qml": "c4aa2cb02f59c53cc14ccaa13acc190fc9e74abaed14d788da9c4207282b3bf3",
-    "components/DockContextMenu.qml": "1a3c787f464874c34492dbf3942d446cd455c8e2911d1f40876e50cb0b7a8d2d",
-    "components/DockItem.qml": "8beebcbab0879ecfac7f38b6f6e55555817af95f1bf0a3ac6994e685ee823be1",
-    "components/DockMenuAction.qml": "550a0f2774cf0d3c97a35b884f556c10106882f5fca95a8e60953c9ac08deb24",
-    "components/Overlap.js": "6cecdc0579a4da098c45530e5f925e18bf379db52780d4b714d5dc856176f01a"
+    "components/DockAppPicker.qml": "c6fed291c7b5486e21100f80c480782fa967a7f2783d265e1965eabf42f369fd",
+    "components/DockContextMenu.qml": "d32c0369a993dc43c9e35e4fb6d96e3d57791c0624397105e4f47521ef33ceed",
+    "components/DockItem.qml": "814e4475bc0d3ad0fb4ede7fd21edd77a9412217af948064aefe2ddead30a43e",
+    "components/DockMenuAction.qml": "bc172ebef7111b46e75331c40f93d27f9cefa54bc12f649e69ab0adb4627b98d",
+    "components/Overlap.js": "6cecdc0579a4da098c45530e5f925e18bf379db52780d4b714d5dc856176f01a",
+    "components/DockStyle.js": "df02d2d8ffbcbbd45ff94e559da24fd7474fc4c2bf5851af48cbd0592e2f775e"
   }
 }
