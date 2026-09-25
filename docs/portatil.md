@@ -78,7 +78,7 @@ volver a él.
 Abre una terminal nueva para ver el prompt, la fuente y el historial.
 En una instalación nueva el dock fija, en este orden: Archivos, Foot, Zen,
 VS Code, WhatsApp, ChatGPT y Spotify. Instala las aplicaciones que falten y crea
-los lanzadores web con Omarchy. Sus cuentas y perfiles no se importan. Si ya
+los lanzadores web con Omarchy. Sus cuentas y perfiles no se importan. Para repetir los ajustes del navegador, sigue [Zen: configuración manual](zen.md). Si ya
 había un dock con favoritos, el instalador conserva su lista: puedes reordenarla
 con el ratón.
 

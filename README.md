@@ -124,7 +124,7 @@ La restauración muestra su plan y también guarda una copia de lo que va a desh
 - Widgets de terceros y servicios ajenos a Lavanda; la distribución de los widgets nativos sí se reorganiza como en mi escritorio.
 - El fondo actual. El fondo de macOS **no se redistribuye**; puedes añadir un fondo propio localmente a `~/.config/omarchy/backgrounds/tokyo-night/` y seleccionarlo desde Omarchy.
 
-No incluye cambios de Zen, perfiles del navegador, OpenCode ni paquetes completos de iconos Yaru. Son ajustes o dependencias independientes. Tampoco intenta arreglar la captura de teclado de Try Omarchy en Windows.
+Los ajustes de Zen se reproducen con la [guía manual](docs/zen.md). El instalador no incluye perfiles del navegador, configuración de OpenCode ni paquetes completos de iconos Yaru. Son ajustes o dependencias independientes. Tampoco intenta arreglar la captura de teclado de Try Omarchy en Windows.
 
 ## Archivos y pruebas
 
