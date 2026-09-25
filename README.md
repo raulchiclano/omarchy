@@ -42,7 +42,7 @@ Esto último es opcional y aplica también los demás ajustes del tema Tokyo Nig
 | `desktop` | Notificaciones separadas del borde, con duración de 5 segundos, pausada al pasar el ratón. También las críticas usan este plazo. |
 | `terminal` | Foot: JetBrainsMono Nerd Font 10, margen 14, cursor fino y fondo al 94 % de opacidad. Conserva la paleta del tema. |
 | `shell` | Prompt Starship con iconos, carpeta y estado Git; ble.sh si está instalado; historial Ctrl+R con separación, resaltado y números atenuados. |
-| `dock` | Dock inferior lavanda, iconos de 42 px, ampliación suave, ocultación inteligente e inicio automático; usa una revisión probada de [mi fork](https://github.com/raulchiclano/hyprland-dock). |
+| `dock` | Dock inferior lavanda, iconos de 32 px, ampliación hasta 44 px, ocultación inteligente e inicio automático; usa una revisión probada de [mi fork](https://github.com/raulchiclano/hyprland-dock). |
 | `icons` | Adwaita al elegir Tokyo Night, mediante una capa de configuración del tema. |
 | `workspaces` | **Opcional:** Ctrl+Super+←/→ para cambiar al escritorio contiguo. Reemplaza los atajos de grupo de esas teclas. |
 

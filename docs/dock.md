@@ -5,7 +5,7 @@
 ## Configuración inicial
 
 - Abajo y centrado, fondo lavanda con opacidad 88 %, margen de 10 px.
-- Iconos de 42 px, ampliación 1.2 y radio de ampliación de 95 px.
+- Iconos de 32 px, ampliación 1.375 (hasta 44 px) y radio de ampliación de 95 px.
 - Visible cuando ninguna ventana se superpone; se oculta al taparlo. Acercar el puntero al borde inferior lo revela.
 - No reserva espacio permanentemente para el dock.
 - Clic: enfoca la aplicación si está abierta o la inicia.
