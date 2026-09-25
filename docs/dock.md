@@ -4,7 +4,7 @@
 
 ## Configuración inicial
 
-- Abajo y centrado, fondo lavanda con opacidad 88 %, margen de 10 px.
+- Abajo y centrado, fondo lavanda con opacidad 88 %, margen de 10 px y esquinas con radio de 14 px, a juego con los paneles.
 - Iconos de 32 px, ampliación 1.375 (hasta 44 px) y radio de ampliación de 95 px.
 - Visible cuando ninguna ventana se superpone; se oculta al taparlo. Acercar el puntero al borde inferior lo revela.
 - No reserva espacio permanentemente para el dock.
