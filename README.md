@@ -42,6 +42,7 @@ Esto último es opcional y aplica también los demás ajustes del tema Tokyo Nig
 | `desktop` | Notificaciones separadas del borde, con duración de 5 segundos, pausada al pasar el ratón. También las críticas usan este plazo. |
 | `terminal` | Foot: JetBrainsMono Nerd Font 10, margen 14, cursor fino y fondo al 94 % de opacidad. Conserva la paleta del tema. |
 | `shell` | Prompt Starship con iconos, carpeta y estado Git; ble.sh si está instalado; historial Ctrl+R con separación, resaltado y números atenuados. |
+| `dock` | Dock inferior lavanda, iconos de 42 px, ampliación suave, ocultación inteligente e inicio automático; usa una revisión probada de [mi fork](https://github.com/raulchiclano/hyprland-dock). |
 | `icons` | Adwaita al elegir Tokyo Night, mediante una capa de configuración del tema. |
 | `workspaces` | **Opcional:** Ctrl+Super+←/→ para cambiar al escritorio contiguo. Reemplaza los atajos de grupo de esas teclas. |
 
@@ -54,15 +55,27 @@ El selector de archivos `ff` y los alias originales de Omarchy se conservan. El 
 ./install.sh apply --only terminal,shell
 ```
 
-La instalación normal incluye `desktop,terminal,shell,icons`. Los atajos de escritorios se activan aparte:
+La instalación normal incluye `desktop,terminal,shell,icons,dock`. El dock ya queda configurado como en mi escritorio; no necesita `--only dock` para instalarse. Los atajos de escritorios se activan aparte:
 
 ```bash
 ./install.sh apply --only workspaces
 ```
 
+### Instalar o actualizar solo el dock
+
+```bash
+./install.sh doctor --only dock
+./install.sh plan --only dock --diff
+./install.sh apply --only dock
+```
+
+En una instalación nueva fija Archivos (Nautilus), Zen, Foot, VS Code y WhatsApp. Estas aplicaciones deben estar instaladas en cada equipo; sus perfiles y cuentas no se copian. Si ya tienes una lista de aplicaciones en el dock, la conserva. Aplica el aspecto y comportamiento de Lavanda y mantiene las opciones desconocidas.
+
+El código procede de una revisión exacta del fork, registrada en `dock.lock.json`, y se comprueba con SHA-256 por archivo. `doctor`, `plan` y `apply` necesitan Internet cuando incluyen el dock; la descarga se mantiene en memoria y no se ejecuta el instalador remoto. `restore` funciona sin Internet. [Funcionamiento y mantenimiento del dock](docs/dock.md).
+
 ## Dependencias
 
-El diagnóstico comprueba las herramientas y fuentes principales. En esta instalación se usan `foot`, `starship`, `fzf` 0.74.4 o posterior, `jq`, `adwaita-fonts` y `ttf-jetbrains-mono-nerd`. El instalador está escrito con la biblioteca estándar de Python 3 y no descarga paquetes.
+El diagnóstico comprueba las herramientas y fuentes principales. En esta instalación se usan `foot`, `starship`, `fzf` 0.74.4 o posterior, `jq`, `adwaita-fonts` y `ttf-jetbrains-mono-nerd`. El dock necesita Hyprland y Quickshell 0.3.0 o posterior (`qs`). El instalador está escrito con la biblioteca estándar de Python 3: no instala paquetes del sistema; sí descarga los archivos del dock fijado cuando se selecciona ese componente.
 
 Si faltan estos paquetes en un Omarchy compatible:
 
@@ -113,6 +126,7 @@ No incluye cambios de Zen, perfiles del navegador, OpenCode ni paquetes completo
 
 - `payload/`: configuración portable y diez plugins con identificadores `lavanda.*`.
 - `installer.py`: revisión, instalación, copias y restauración.
+- `dock.lock.json`: revisión del fork y huellas de sus archivos; `payload/dock/`: preferencias y lanzador gestionado.
 - `compatibility.json`: huellas de la base con la que se han validado los paneles.
 - `docs/`: compatibilidad, diseño y mantenimiento.
 - `tests/`: pruebas de preservación, restauración, repetición y tratamiento de errores.

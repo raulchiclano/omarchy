@@ -12,6 +12,6 @@ jobs:
           python-version: '3.12'
       - run: python -m unittest discover -s tests -v
       - run: |
-          for file in install.sh payload/bash/*.sh payload/plugins/lavanda.notifications/ScreenState.sh; do
+          for file in install.sh payload/bash/*.sh payload/dock/hyprland-dock payload/plugins/lavanda.notifications/ScreenState.sh; do
             bash -n "$file"
           done

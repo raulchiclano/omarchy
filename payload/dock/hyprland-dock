@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# Managed by Omarchy Lavanda. Dock QML comes from the pinned public fork.
+set -euo pipefail
+app_dir="${XDG_DATA_HOME:-$HOME/.local/share}/hyprland-dock"
+config_file="${XDG_CONFIG_HOME:-$HOME/.config}/hyprland-dock/dock.json"
+autostart_file="${XDG_CONFIG_HOME:-$HOME/.config}/autostart/hyprland-dock.desktop"
+stop_dock() {
+  qs kill -p "$app_dir" >/dev/null 2>&1 || true
+  for ((attempt=0; attempt<50; attempt++)); do
+    if qs list -p "$app_dir" --json | python3 -c 'import json,sys; text=sys.stdin.read().strip(); sys.exit(bool([] if not text or text.startswith("No running instances") else json.loads(text)))'; then
+      return
+    fi
+    sleep 0.1
+  done
+  echo 'El dock no se ha detenido; no se inicia una segunda instancia.' >&2
+  return 1
+}
+case "${1:-}" in
+  stop|--stop) stop_dock; exit ;;
+  restart|--restart) stop_dock; shift; set -- --daemonize "$@" ;;
+  update|--update|uninstall|--uninstall)
+    echo 'Este dock lo gestiona tu repositorio omarchy.'
+    echo 'Actualizar: git pull --ff-only; ./install.sh plan --only dock --diff; ./install.sh apply --only dock'
+    echo 'Deshacer: ./install.sh backups; ./install.sh restore ID_DE_LA_COPIA'
+    exit ;;
+  autostart)
+    if [[ "${2:-status}" != status ]]; then
+      echo 'El inicio automático lo gestiona el instalador de Omarchy Lavanda.' >&2
+      exit 2
+    fi
+    if [[ -f "$autostart_file" ]]; then echo 'Inicio automático configurado.'; else echo 'Sin inicio automático.'; fi
+    exit ;;
+  help|--help|-h)
+    echo 'Hyprland Dock — Omarchy Lavanda'
+    echo 'hyprland-dock [--daemonize | restart | stop | update | autostart status]'
+    exit ;;
+esac
+exec env HYPRLAND_DOCK_CONFIG="$config_file" qs -n -p "$app_dir" "$@"

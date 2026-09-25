@@ -9,6 +9,11 @@
 | `~/.config/omarchy-lavanda/` | Archivos auxiliares de Hyprland, Bash y Starship. |
 | `~/.config/hypr/looknfeel.lua` | Añade un bloque que carga el aspecto, sin borrar otros ajustes. |
 | `~/.config/hypr/bindings.lua` | Solo con `--only workspaces`: añade la carga de los dos atajos. |
+| `~/.local/share/hyprland-dock/` | Archivos verificados de la revisión fijada del fork y registro de versión. |
+| `~/.config/hyprland-dock/dock.json` | Aplica el preset actual y conserva aplicaciones fijadas existentes y opciones desconocidas. |
+| `~/.local/bin/hyprland-dock` | Lanzador ejecutable gestionado, con actualizaciones a través de este instalador. |
+| `~/.config/autostart/hyprland-dock.desktop` | Arranque automático del dock en Hyprland. |
+| `~/.local/share/applications/hyprland-dock.desktop` | Entrada del dock en el menú de aplicaciones. |
 | `~/.config/foot/foot.ini` | Edita únicamente fuente, márgenes, cursor, desplazamiento y opacidad. |
 | `~/.bashrc` | Sustituye la carga estándar por la integración y añade el historial al final. Conserva alias y funciones personales. |
 | `~/.config/omarchy/themes/tokyo-night/icons.theme` | Define Adwaita para ese tema. |
@@ -32,7 +37,8 @@ La restauración comprueba que no haya cambios posteriores ni copias dañadas. T
 1. Comprueba la barra, el calendario, los menús y los paneles de sonido/red/monitor.
 2. Abre una terminal nueva y prueba `ls`, Ctrl+R y un repositorio Git.
 3. Comprueba `hyprctl configerrors`. El instalador recarga y consulta errores cuando detecta una sesión activa y ha cambiado archivos de Hyprland.
-4. Opcionalmente envía una notificación: `notify-send 'Lavanda' 'Prueba de aspecto y duración'`.
+4. Comprueba el dock: aparece en un espacio libre, se oculta al superponer una ventana y reaparece al acercar el puntero al borde inferior.
+5. Opcionalmente envía una notificación: `notify-send 'Lavanda' 'Prueba de aspecto y duración'`.
 
 Foot toma los cambios en ventanas nuevas. No hace falta cerrar terminales con trabajo en curso. La shell debería recargarse automáticamente; si no lo hace, ejecuta `omarchy restart shell`.
 
@@ -49,3 +55,5 @@ Foot toma los cambios en ventanas nuevas. No hace falta cerrar terminales con tr
 `--home DIRECTORIO` permite preparar una copia de configuración en otro directorio existente. No ejecuta recargas de la sesión cuando ese directorio no es tu HOME real. Debe contener los archivos base de Omarchy correspondientes a los componentes elegidos.
 
 Las pruebas automatizadas crean sus propios directorios temporales. Nunca uses `sudo` para instalar o probar.
+
+El dock se detiene antes de cambiar sus archivos y se vuelve a abrir después si hay una sesión Hyprland activa en el HOME real. Con `--home` no se toca la sesión. Si restauras la copia de una primera instalación, se retiran sus archivos y su arranque automático; si había un dock anterior, vuelve su configuración. La barra superior es un proceso independiente.

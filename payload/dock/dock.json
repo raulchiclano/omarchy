@@ -1,0 +1,20 @@
+{
+  "iconSize": 42,
+  "magnification": 1.2,
+  "magnificationRadius": 95,
+  "margin": 10,
+  "backgroundOpacity": 0.88,
+  "position": "bottom",
+  "fullLength": false,
+  "reserveSpace": false,
+  "autoHide": true,
+  "clickAction": "focus-or-launch",
+  "pinned": [
+    "org.gnome.Nautilus",
+    "zen",
+    "foot",
+    "code",
+    "WhatsApp"
+  ],
+  "intelligentHide": true
+}

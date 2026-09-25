@@ -7,6 +7,8 @@ import unittest
 from unittest.mock import patch
 import shutil
 import os
+import io
+import tarfile
 
 ROOT = Path(__file__).resolve().parents[1]
 spec = importlib.util.spec_from_file_location('installer', ROOT / 'installer.py')
@@ -26,6 +28,11 @@ class InstallerTest(unittest.TestCase):
         self.addCleanup(self.tmp.cleanup)
         self.home = Path(self.tmp.name) / 'home'
         self.home.mkdir()
+        # Default installation includes dock, but unit tests never need the network.
+        payload_patch = patch.object(m, 'dock_payload', return_value={
+            'shell.qml': b'import Quickshell\nShellRoot {}\n', 'LICENSE': b'MIT fixture\n'})
+        payload_patch.start()
+        self.addCleanup(payload_patch.stop)
         self.base = Path(self.tmp.name) / 'omarchy'
         (self.base / 'themes/tokyo-night').mkdir(parents=True)
         (self.base / 'config/omarchy').mkdir(parents=True)
@@ -170,6 +177,97 @@ class InstallerTest(unittest.TestCase):
         self.assertNotIn('.config/hypr/bindings.lua', paths)
         self.assertIn('.config/hypr/bindings.lua', [x['path'] for x in self.plan({'workspaces'})])
 
+    def test_dock_is_default_and_only_dock_is_isolated(self):
+        changes = self.plan({'dock'})
+        self.assertTrue(any(x['path'] == '.local/bin/hyprland-dock' for x in self.plan()))
+        self.assertFalse(any(x['path'].startswith(('.config/hypr/', '.config/omarchy/')) for x in changes))
+        before = self.snapshot()
+        identifier = m.transaction(self.home, changes)
+        launcher = self.home / '.local/bin/hyprland-dock'
+        self.assertEqual(launcher.stat().st_mode & 0o777, 0o755)
+        settings = json.loads((self.home / '.config/hyprland-dock/dock.json').read_text())
+        self.assertEqual(settings, json.loads((ROOT / 'payload/dock/dock.json').read_text()))
+        self.assertIn('--daemonize', (self.home / '.config/autostart/hyprland-dock.desktop').read_text())
+        self.assertEqual(self.plan({'dock'}), [])
+        m.transaction(self.home, m.restore_plan(self.home, identifier), 'restore')
+        self.assertEqual(before, self.snapshot())
+
+    def test_dock_preserves_pins_and_unknown_settings_but_applies_style(self):
+        self.write('.config/hyprland-dock/dock.json', json.dumps({'pinned': ['my.app'], 'position': 'left', 'future': 42}))
+        m.transaction(self.home, self.plan({'dock'}))
+        settings = json.loads((self.home / '.config/hyprland-dock/dock.json').read_text())
+        self.assertEqual(settings['pinned'], ['my.app'])
+        self.assertEqual(settings['future'], 42)
+        self.assertEqual(settings['position'], 'bottom')
+        self.assertTrue(settings['intelligentHide'])
+
+    def test_dock_mode_only_change_restores_original_mode(self):
+        m.transaction(self.home, self.plan({'dock'}))
+        launcher = self.home / '.local/bin/hyprland-dock'
+        launcher.chmod(0o600)
+        changes = self.plan({'dock'})
+        self.assertEqual(len(changes), 1)
+        identifier = m.transaction(self.home, changes)
+        self.assertEqual(launcher.stat().st_mode & 0o777, 0o755)
+        m.transaction(self.home, m.restore_plan(self.home, identifier), 'restore')
+        self.assertEqual(launcher.stat().st_mode & 0o777, 0o600)
+
+    def test_mode_change_during_review_refused(self):
+        changes = self.plan({'shell'})
+        (self.home / '.bashrc').chmod(0o600)
+        with self.assertRaisesRegex(m.Problem, 'durante la revisión'):
+            m.transaction(self.home, changes)
+
+    def test_dock_invalid_pins_refused(self):
+        for value in ['bad', [1]]:
+            self.write('.config/hyprland-dock/dock.json', json.dumps({'pinned': value}))
+            with self.assertRaisesRegex(m.Problem, 'lista de aplicaciones'):
+                self.plan({'dock'})
+
+    def test_dock_launcher_syntax_and_update_does_not_download(self):
+        script = ROOT / 'payload/dock/hyprland-dock'
+        subprocess.run(['bash', '-n', str(script)], check=True)
+        result = subprocess.run(['bash', str(script), 'update'], text=True, capture_output=True, check=True)
+        self.assertIn('./install.sh apply --only dock', result.stdout)
+
+    def test_stop_dock_accepts_empty_quickshell_output(self):
+        self.write('.local/share/hyprland-dock/shell.qml', 'ShellRoot {}')
+        for output in ['', '[]\n', 'No running instances for /dock/shell.qml\nUse --all to list all instances.\n']:
+            with patch.object(m.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, output, '')):
+                m.stop_live_dock(self.home)
+
+    def test_fresh_install_does_not_stop_other_shells(self):
+        with patch.object(m.subprocess, 'run') as run:
+            m.stop_live_dock(self.home)
+            run.assert_not_called()
+
+    def test_managed_restart_waits_for_stop_before_starting(self):
+        fake_bin = Path(self.tmp.name) / 'bin'
+        fake_bin.mkdir()
+        qs = fake_bin / 'qs'
+        qs.write_text('#!/bin/sh\ncase "$1" in\nkill) exit 0;;\nlist) echo "No running instances for /dock/shell.qml"; exit 0;;\n*) printf "STARTED\\n";;\nesac\n')
+        qs.chmod(0o755)
+        result = subprocess.run(['bash', str(ROOT / 'payload/dock/hyprland-dock'), 'restart'],
+                                env={**os.environ, 'PATH': str(fake_bin) + ':' + os.environ['PATH']},
+                                text=True, capture_output=True, check=True)
+        self.assertEqual(result.stdout, 'STARTED\n')
+
+    def test_dock_write_failure_restores_previous_launcher_permissions(self):
+        self.write('.local/bin/hyprland-dock', 'original')
+        launcher = self.home / '.local/bin/hyprland-dock'
+        launcher.chmod(0o600)
+        before = self.snapshot()
+        real_write = m.atomic_write
+        def fail(path, data, mode=0o644):
+            if str(path).endswith('/autostart/hyprland-dock.desktop'):
+                raise OSError('autostart failure')
+            return real_write(path, data, mode)
+        with patch.object(m, 'atomic_write', side_effect=fail):
+            with self.assertRaisesRegex(OSError, 'autostart'):
+                m.transaction(self.home, self.plan({'dock'}))
+        self.assertEqual(self.snapshot(), before)
+        self.assertEqual(launcher.stat().st_mode & 0o777, 0o600)
+
     def test_syntax_of_generated_bash(self):
         data = next(x['after'] for x in self.plan({'shell'}) if x['path'] == '.bashrc')
         result = subprocess.run(['bash', '-n'], input=data, capture_output=True)
@@ -204,6 +302,56 @@ class InstallerTest(unittest.TestCase):
                                     input=sample + b'\0', capture_output=True)
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertEqual(result.stdout, sample + b'\0')
+
+
+class DockDownloadTest(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.revision = 'a' * 40
+        self.lock = {'repository': 'raulchiclano/hyprland-dock', 'revision': self.revision,
+                     'files': {'shell.qml': m.digest(b'good')}}
+        (self.root / 'dock.lock.json').write_text(json.dumps(self.lock))
+
+    def archive(self, contents=b'good', name='shell.qml', symlink=False, duplicate=False):
+        buffer = io.BytesIO()
+        with tarfile.open(fileobj=buffer, mode='w:gz') as archive:
+            member = tarfile.TarInfo('hyprland-dock-' + self.revision + '/' + name)
+            member.size = len(contents)
+            if symlink:
+                member.type = tarfile.SYMTYPE
+                member.linkname = '/etc/passwd'
+                member.size = 0
+            archive.addfile(member, io.BytesIO(contents))
+            if duplicate:
+                archive.addfile(member, io.BytesIO(contents))
+        return buffer.getvalue()
+
+    def fetch(self, data):
+        with patch.object(m, 'ROOT', self.root), patch.object(m.urllib.request, 'urlopen', return_value=io.BytesIO(data)):
+            return m.dock_payload()
+
+    def test_verified_download(self):
+        self.assertEqual(self.fetch(self.archive()), {'shell.qml': b'good'})
+
+    def test_hash_mismatch(self):
+        with self.assertRaisesRegex(m.Problem, 'huella'):
+            self.fetch(self.archive(b'bad'))
+
+    def test_missing_member(self):
+        with self.assertRaisesRegex(m.Problem, 'Faltan archivos'):
+            self.fetch(self.archive(name='different.qml'))
+
+    def test_symlink_and_duplicate_rejected(self):
+        for kwargs in [{'symlink': True}, {'duplicate': True}]:
+            with self.assertRaisesRegex(m.Problem, 'no válido'):
+                self.fetch(self.archive(**kwargs))
+
+    def test_network_failure_reported(self):
+        with patch.object(m, 'ROOT', self.root), patch.object(m.urllib.request, 'urlopen', side_effect=OSError('offline')):
+            with self.assertRaisesRegex(m.Problem, 'no se ha instalado nada'):
+                m.dock_payload()
 
 
 if __name__ == '__main__':
