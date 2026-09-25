@@ -26,7 +26,7 @@ STATE = '.local/state/omarchy-lavanda'
 CONFIG = '.config/omarchy-lavanda'
 COMPONENTS = {'desktop', 'terminal', 'shell', 'icons', 'workspaces', 'dock'}
 DEFAULT = 'desktop,terminal,shell,icons,dock'
-SERVICES = ('osd', 'notifications', 'menu')
+SERVICES = ('osd', 'notifications', 'menu', 'clipboard', 'emojis', 'lock')
 
 
 class Problem(Exception):
@@ -360,9 +360,31 @@ def atomic_write(path, data, mode=0o644):
             os.unlink(name)
 
 
+def shell_files_changed(changes):
+    return any(x['path'].startswith('.config/omarchy/plugins/')
+               or x['path'] == '.config/omarchy/shell.json' for x in changes)
+
+
+def check_live_lock(home, changes):
+    # Cloned lock views share the shell process. Never reload or replace the
+    # service while it owns a secure session lock, including during restore.
+    if home != Path.home() or not shell_files_changed(changes):
+        return
+    if not (os.environ.get('HYPRLAND_INSTANCE_SIGNATURE') or os.environ.get('WAYLAND_DISPLAY')):
+        return
+    try:
+        status = subprocess.check_output(['omarchy-shell', 'lock', 'isLocked'],
+                                         text=True, timeout=3).strip()
+    except (OSError, subprocess.SubprocessError) as exc:
+        raise Problem('No se pudo comprobar el bloqueo de la sesión; no se cambia la shell.') from exc
+    if status != 'false':
+        raise Problem('Desbloquea la sesión antes de instalar o restaurar los paneles.')
+
+
 def transaction(home, changes, operation='apply'):
     if not changes:
         return None
+    check_live_lock(home, changes)
     # All path and content checks happen before creating the backup or writing config.
     def unchanged(item):
         p = target(home, item['path'])
@@ -443,9 +465,9 @@ def restore_plan(home, identifier):
 def dependencies(parts):
     required = set()
     if 'dock' in parts:
-        required.update(['qs', 'hyprctl', 'bash'])
+        required.update(['qs', 'hyprctl', 'bash', 'omarchy'])
     if 'desktop' in parts:
-        required.update(['omarchy-shell', 'hyprctl', 'jq', 'timeout', 'fc-match'])
+        required.update(['omarchy', 'omarchy-shell', 'hyprctl', 'jq', 'timeout', 'fc-match', 'getent', 'wl-paste'])
     if 'terminal' in parts:
         required.update(['foot', 'fc-match'])
     if 'shell' in parts:
@@ -466,7 +488,9 @@ def dependencies(parts):
             print('AVISO: ble.sh no está instalado; Bash funcionará sin sus sugerencias.')
     fonts = []
     if 'desktop' in parts:
-        fonts.append('Adwaita Sans')
+        fonts.extend(['Adwaita Sans', 'Noto Color Emoji'])
+        if not Path('/etc/pam.d/omarchy-lock-password').is_file():
+            raise Problem('Falta la configuración de autenticación original de Omarchy. No se instala el bloqueo.')
     if parts & {'desktop', 'terminal'}:
         fonts.append('JetBrainsMono Nerd Font')
     for font in fonts:
@@ -559,7 +583,14 @@ def main(argv=None):
         if live_dock and launcher.is_file() and os.access(launcher, os.X_OK):
             subprocess.run([str(launcher), '--daemonize'], check=False)
     print(f'\nHecho. Copia local: {identifier}\nDeshacer: ./install.sh restore {identifier}')
-    print('Los paneles se recargan al guardar; abre una terminal nueva para probar Bash/Foot.')
+    if shell_files_changed(changes) and home == Path.home():
+        if os.environ.get('HYPRLAND_INSTANCE_SIGNATURE') or os.environ.get('WAYLAND_DISPLAY'):
+            subprocess.run(['omarchy', 'restart', 'shell'], check=True)
+            print('Paneles recargados. Abre una terminal nueva para probar Bash/Foot.')
+        else:
+            print('Sin sesión gráfica activa: los paneles se cargarán al iniciar sesión.')
+    else:
+        print('Abre una terminal nueva para probar Bash/Foot si los has instalado.')
     if dock_changed:
         if args.action == 'restore':
             print('Archivos del dock restaurados al estado de la copia.')

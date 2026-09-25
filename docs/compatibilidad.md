@@ -2,7 +2,7 @@
 
 ## Base de esta edición
 
-Exportada de una personalización en uso el 24 de septiembre de 2026:
+Exportada de una personalización en uso el 25 de septiembre de 2026:
 
 | Elemento | Versión observada |
 | --- | --- |

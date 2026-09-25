@@ -86,6 +86,63 @@ class InstallerTest(unittest.TestCase):
         self.assertEqual(self.snapshot(), before)
         self.assertEqual(m.restore_plan(self.home, identifier), [])
 
+    def test_new_services_migrate_without_duplicates_or_personal_data(self):
+        personal = {
+            '.local/state/omarchy/clipboard-history.json': '["private clipboard"]',
+            '.local/state/omarchy/current/background': 'private wallpaper sentinel',
+            '.config/hypr/monitors.lua': 'laptop monitor settings',
+        }
+        for path, content in personal.items():
+            self.write(path, content)
+        config = json.loads((self.home / '.config/omarchy/shell.json').read_text())
+        for name in ('clipboard', 'emojis', 'lock'):
+            config['plugins'].append({'id': 'raulchiclano.' + name})
+        self.write('.config/omarchy/shell.json', json.dumps(config))
+        changes = self.plan({'desktop'})
+        m.transaction(self.home, changes)
+        installed = json.loads((self.home / '.config/omarchy/shell.json').read_text())
+        ids = [x['id'] for x in installed['plugins']]
+        for name in ('clipboard', 'emojis', 'lock'):
+            self.assertEqual(ids.count('lavanda.' + name), 1)
+            self.assertNotIn('raulchiclano.' + name, ids)
+            self.assertIn('omarchy.' + name, installed['disabledPlugins'])
+            self.assertIn('raulchiclano.' + name, installed['disabledPlugins'])
+            self.assertIn('lavanda.' + name, installed['cloneSourceRestores'])
+        for path, content in personal.items():
+            self.assertEqual((self.home / path).read_text(), content)
+        self.assertEqual(self.plan({'desktop'}), [])
+
+    def test_lock_guard_rejects_locked_or_unknown_session_before_writes(self):
+        changes = self.plan({'desktop'})
+        before = self.snapshot()
+        with patch.object(m.Path, 'home', return_value=self.home), \
+             patch.dict(os.environ, {'HYPRLAND_INSTANCE_SIGNATURE': 'test'}):
+            for result in ('true', 'unknown', ''):
+                with patch.object(m.subprocess, 'check_output', return_value=result):
+                    with self.assertRaisesRegex(m.Problem, 'Desbloquea'):
+                        m.transaction(self.home, changes)
+            with patch.object(m.subprocess, 'check_output', side_effect=subprocess.TimeoutExpired('lock', 3)):
+                with self.assertRaisesRegex(m.Problem, 'No se pudo comprobar'):
+                    m.transaction(self.home, changes)
+        self.assertEqual(before, self.snapshot())
+        self.assertFalse((self.home / m.STATE).exists())
+
+    def test_lock_guard_accepts_unlocked_and_skips_unrelated_files(self):
+        changes = [{'path': '.config/omarchy/plugins/lavanda.lock/LockView.qml'}]
+        with patch.object(m.Path, 'home', return_value=self.home), \
+             patch.dict(os.environ, {'HYPRLAND_INSTANCE_SIGNATURE': 'test'}), \
+             patch.object(m.subprocess, 'check_output', return_value='false\n') as check:
+            m.check_live_lock(self.home, changes)
+            check.assert_called_once()
+            check.reset_mock()
+            m.check_live_lock(self.home, [{'path': '.config/foot/foot.ini'}])
+            m.check_live_lock(self.home / 'other', changes)
+            check.assert_not_called()
+
+    def test_lock_authentication_service_matches_validated_omarchy(self):
+        expected = json.loads((ROOT / 'compatibility.json').read_text())['desktop']['shell/plugins/lock/Service.qml']
+        self.assertEqual(m.digest((ROOT / 'payload/plugins/lavanda.lock/Service.qml').read_bytes()), expected)
+
     def test_restore_refuses_later_user_edits(self):
         identifier = m.transaction(self.home, self.plan())
         self.write('.bashrc', 'My newer edits')

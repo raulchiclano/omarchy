@@ -38,9 +38,10 @@ La restauración comprueba que no haya cambios posteriores ni copias dañadas. T
 2. Abre una terminal nueva y prueba `ls`, Ctrl+R y un repositorio Git.
 3. Comprueba `hyprctl configerrors`. El instalador recarga y consulta errores cuando detecta una sesión activa y ha cambiado archivos de Hyprland.
 4. Comprueba el dock: aparece en un espacio libre, se oculta al superponer una ventana y reaparece al acercar el puntero al borde inferior.
-5. Opcionalmente envía una notificación: `notify-send 'Lavanda' 'Prueba de aspecto y duración'`.
+5. Prueba Ctrl+Super+V (portapapeles), Ctrl+Super+E (emojis) y `omarchy-shell lock preview` (un clic cierra la vista previa).
+6. Opcionalmente envía una notificación: `notify-send 'Lavanda' 'Prueba de aspecto y duración'`.
 
-Foot toma los cambios en ventanas nuevas. No hace falta cerrar terminales con trabajo en curso. La shell debería recargarse automáticamente; si no lo hace, ejecuta `omarchy restart shell`.
+Foot toma los cambios en ventanas nuevas. No hace falta cerrar terminales con trabajo en curso. El instalador recarga la shell al terminar cuando hay una sesión activa. Se niega a cambiar sus paneles si la sesión está bloqueada o no puede comprobar su estado. La misma comprobación protege la restauración. El servicio de autenticación del bloqueo es idéntico al de la base validada; solo cambia su vista.
 
 ## Si algo no aparece
 

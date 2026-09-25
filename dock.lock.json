@@ -1,11 +1,11 @@
 {
   "repository": "raulchiclano/hyprland-dock",
-  "revision": "750e3c80b29def2379a1666df52f31782af1ac76",
+  "revision": "9d2530064bd30cd78b2f70f2237e1e169bd0ed31",
   "files": {
     "shell.qml": "5a3daf8d189de106ea74e05d47a578c211979e203218d32139443b5a84dde5aa",
-    "DockHost.qml": "361a82e3a517c5f38e732fe533db29e47d7f7419075aba8ad14d68fc2c35efba",
+    "DockHost.qml": "92aa0cd17cffc31bab75f8a4295a5801ddd7d3a9de0ab6463f32e6730c388796",
     "LICENSE": "3333be61cff8f46a68a883978fff0a6a2a993c3f434396c54482413ce9f63416",
-    "components/Dock.qml": "3e8cc221b1ec2e67b75af91af2186b420b098b3ad84eaa259a180acd9fa90834",
+    "components/Dock.qml": "3427a94ba5c8a6c594dc72b752f3cc088950657d8bdbbb84db1f4a5b2f8908b6",
     "components/DockAppPicker.qml": "c6fed291c7b5486e21100f80c480782fa967a7f2783d265e1965eabf42f369fd",
     "components/DockContextMenu.qml": "9597dbfbdfd8ea72927686ae2be068f925294abe7ce3e29f7bb459b4f33c8a7d",
     "components/DockItem.qml": "af11084a862f65940988c7c939b779303b79b4b17cb6359aa9cd94474eec5bd1",
@@ -15,6 +15,7 @@
     "components/Applications.js": "036b89c7476aaad24c63c44f7f9739332489a8d5bd1f19c2d33340bdfe59666f",
     "components/WindowPolicy.js": "d4e3749543c169b7cf89744abed473143220085da170797c0c47e2b6d1333578",
     "components/DockWindowList.qml": "1f099bbcf39c5e1fdb8d72aa9b04ec74b69ce764ab88b31de4a54d753dcebce8",
-    "components/DockIndicator.qml": "dde75c84d32188ce3a1c285bbaa8027f7aa69b891e445bc3471123833753973b"
+    "components/DockIndicator.qml": "dde75c84d32188ce3a1c285bbaa8027f7aa69b891e445bc3471123833753973b",
+    "components/DockLauncher.qml": "a3a43ef2ad73844fc5a83da687267a41226ef7986cc019cd375b06d85466f3f5"
   }
 }

@@ -1,6 +1,6 @@
 {
   "iconSize": 32,
-  "magnification": 1.375,
+  "magnification": 1.15,
   "magnificationRadius": 95,
   "margin": 10,
   "backgroundOpacity": 0.88,
@@ -11,10 +11,13 @@
   "clickAction": "focus-or-launch",
   "pinned": [
     "org.gnome.Nautilus",
-    "zen",
     "foot",
+    "zen",
     "code",
-    "WhatsApp"
+    "WhatsApp",
+    "chatgpt",
+    "spotify"
   ],
-  "intelligentHide": true
+  "intelligentHide": true,
+  "showLauncher": true
 }

@@ -5,7 +5,8 @@
 ## Configuración inicial
 
 - Abajo y centrado, fondo lavanda con opacidad 88 %, margen de 10 px y esquinas con radio de 14 px, a juego con los paneles.
-- Iconos de 32 px, ampliación 1.375 (hasta 44 px) y radio de ampliación de 95 px.
+- Botón fijo de nueve puntos al principio: abre/cierra el buscador de aplicaciones de Omarchy, separado de los favoritos. No se amplía, no se arrastra y no tiene indicador de ventana.
+- Iconos de 32 px, ampliación sutil 1.15 (hasta unos 37 px) y radio de ampliación de 95 px.
 - Visible cuando ninguna ventana se superpone; se oculta al taparlo. Acercar el puntero al borde inferior lo revela.
 - No reserva espacio permanentemente para el dock.
 - Menús y selector en español, Adwaita Sans, selección lavanda y paneles de radio 14 px.
@@ -15,7 +16,7 @@
 - «Nueva ventana aquí» abre otra aunque haya ventanas locales. «Cerrar ventana aquí» solo cierra una ventana del escritorio actual. La lista tiene desplazamiento para muchas ventanas y permite usar ↑/↓ y Enter; «Volver» o Escape regresa al menú. Los títulos iguales se distinguen con un número.
 - En varios monitores usa el escritorio que tiene el foco; las reglas particulares de cada aplicación pueden decidir dónde aparece una ventana nueva.
 - Indicadores: sin marca si está cerrada; punto tenue si solo hay ventanas en otros escritorios; un punto lavanda si hay una aquí; dos si hay varias aquí; una rayita más luminosa cuando la aplicación tiene el foco. Al pasar el ratón muestra las cantidades exactas aquí y en otros escritorios.
-- Nautilus, Zen, Foot, VS Code y WhatsApp como favoritos iniciales. No instala esas aplicaciones ni transporta cuentas. Conserva la lista existente, incluso si está vacía.
+- Nautilus, Foot, Zen, VS Code, WhatsApp, ChatGPT y Spotify como favoritos iniciales. No instala esas aplicaciones ni transporta cuentas. Conserva la lista existente, incluso si está vacía.
 - Inicio automático mediante una entrada XDG de Hyprland. Mantiene el dock como proceso separado de la shell principal.
 
 El aspecto y comportamiento están probados en el entorno descrito en `compatibility.json`. Una versión de Quickshell compatible no garantiza por sí sola todas las combinaciones de controlador, escala y monitores: verifica el resultado visual en cada equipo.

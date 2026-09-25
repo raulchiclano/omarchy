@@ -6,6 +6,8 @@ Incluye la configuración que uso y un instalador que **enseña los cambios, gua
 
 > Esta edición parte de **Try Omarchy, runtime 4.0.3-4**, con Hyprland **Lua** y la shell **Quickshell**. Los paneles usan APIs de esa edición: el instalador compara la base instalada antes de activarlos. No es un tema universal para todas las versiones de Omarchy. [Compatibilidad](docs/compatibilidad.md).
 
+**Para el portátil:** [guía paso a paso](docs/portatil.md), con los últimos paneles, atajos y el fondo personal por separado.
+
 ## Instalar en otro Omarchy
 
 Desde una terminal de tu usuario habitual:
@@ -24,7 +26,7 @@ cd omarchy
 ./install.sh plan --diff
 ```
 
-Los paneles se recargan automáticamente. Abre una **terminal nueva** para ver Foot y Bash. Para completar la combinación original de colores e iconos, elige Tokyo Night:
+Instala con la sesión desbloqueada. El instalador recarga la shell al finalizar. Abre una **terminal nueva** para ver Foot y Bash. Para completar la combinación original de colores e iconos, elige Tokyo Night:
 
 ```bash
 omarchy theme set tokyo-night
@@ -38,11 +40,13 @@ Esto último es opcional y aplica también los demás ajustes del tema Tokyo Nig
 | --- | --- |
 | `desktop` | Barra superior transparente, botón de aplicaciones de nueve puntos, escritorios con indicador lavanda y reloj/calendario en español. |
 | `desktop` | Menú, sonido, red, monitor, uso de agentes, indicador de volumen y notificaciones con tipografía Adwaita Sans, esquinas suaves y contraste claro. |
+| `desktop` | Buscador de aplicaciones espacioso; portapapeles con lista y vista previa separadas y texto desplazable. |
+| `desktop` | Emojis con nombres y búsqueda en español e inglés, con o sin tildes; reloj, fecha y usuario dinámico en el bloqueo. |
 | `desktop` | Ventanas con radio 8, borde de foco lavanda, sombras y animaciones cortas. |
 | `desktop` | Notificaciones separadas del borde, con duración de 5 segundos, pausada al pasar el ratón. También las críticas usan este plazo. |
 | `terminal` | Foot: JetBrainsMono Nerd Font 10, margen 14, cursor fino y fondo al 94 % de opacidad. Conserva la paleta del tema. |
 | `shell` | Prompt Starship con iconos, carpeta y estado Git; ble.sh si está instalado; historial Ctrl+R con separación, resaltado y números atenuados. |
-| `dock` | Dock inferior lavanda, iconos de 32 px, ampliación hasta 44 px, ocultación inteligente e inicio automático; usa una revisión probada de [mi fork](https://github.com/raulchiclano/hyprland-dock). |
+| `dock` | Dock inferior lavanda, iconos de 32 px, ampliación sutil hasta unos 37 px, ocultación inteligente e inicio automático; usa una revisión probada de [mi fork](https://github.com/raulchiclano/hyprland-dock). |
 | `icons` | Adwaita al elegir Tokyo Night, mediante una capa de configuración del tema. |
 | `workspaces` | **Opcional:** Ctrl+Super+←/→ para cambiar al escritorio contiguo. Reemplaza los atajos de grupo de esas teclas. |
 
@@ -69,18 +73,18 @@ La instalación normal incluye `desktop,terminal,shell,icons,dock`. El dock ya q
 ./install.sh apply --only dock
 ```
 
-En una instalación nueva fija Archivos (Nautilus), Zen, Foot, VS Code y WhatsApp. Estas aplicaciones deben estar instaladas en cada equipo; sus perfiles y cuentas no se copian. Si ya tienes una lista de aplicaciones en el dock, la conserva. Aplica el aspecto y comportamiento de Lavanda y mantiene las opciones desconocidas.
+En una instalación nueva fija Archivos (Nautilus), Foot, Zen, VS Code, WhatsApp, ChatGPT y Spotify. El botón de aplicaciones aparece antes de los favoritos y mantiene su tamaño al pasar el ratón. Estas aplicaciones deben estar instaladas en cada equipo; sus perfiles y cuentas no se copian. Si ya tienes una lista de aplicaciones en el dock, la conserva. Aplica el aspecto y comportamiento de Lavanda y mantiene las opciones desconocidas.
 
 El código procede de una revisión exacta del fork, registrada en `dock.lock.json`, y se comprueba con SHA-256 por archivo. `doctor`, `plan` y `apply` necesitan Internet cuando incluyen el dock; la descarga se mantiene en memoria y no se ejecuta el instalador remoto. `restore` funciona sin Internet. [Funcionamiento y mantenimiento del dock](docs/dock.md).
 
 ## Dependencias
 
-El diagnóstico comprueba las herramientas y fuentes principales. En esta instalación se usan `foot`, `starship`, `fzf` 0.74.4 o posterior, `jq`, `adwaita-fonts` y `ttf-jetbrains-mono-nerd`. El dock necesita Hyprland y Quickshell 0.3.0 o posterior (`qs`). El instalador está escrito con la biblioteca estándar de Python 3: no instala paquetes del sistema; sí descarga los archivos del dock fijado cuando se selecciona ese componente.
+El diagnóstico comprueba las herramientas y fuentes principales. En esta instalación se usan `foot`, `starship`, `fzf` 0.74.4 o posterior, `jq`, `adwaita-fonts`, `noto-fonts-emoji` y `ttf-jetbrains-mono-nerd`. El dock necesita Hyprland y Quickshell 0.3.0 o posterior (`qs`). El instalador está escrito con la biblioteca estándar de Python 3: no instala paquetes del sistema; sí descarga los archivos del dock fijado cuando se selecciona ese componente.
 
 Si faltan estos paquetes en un Omarchy compatible:
 
 ```bash
-omarchy pkg add foot starship fzf jq adwaita-fonts ttf-jetbrains-mono-nerd
+omarchy pkg add foot starship fzf jq adwaita-fonts noto-fonts-emoji ttf-jetbrains-mono-nerd
 ```
 
 Las sugerencias y edición de línea de ble.sh son opcionales:
@@ -115,7 +119,7 @@ La restauración muestra su plan y también guarda una copia de lo que va a desh
 ## Qué se conserva en cada equipo
 
 - Monitores, resolución, escala, teclado, red, Bluetooth, cuentas, claves SSH, historial y documentos.
-- Bloqueo, suspensión y tiempos de inactividad existentes.
+- Autenticación, suspensión y tiempos de inactividad existentes; cambia la presentación del bloqueo.
 - Configuraciones de aplicaciones ajenas al paquete y extensiones personales del menú.
 - Widgets de terceros y servicios ajenos a Lavanda; la distribución de los widgets nativos sí se reorganiza como en mi escritorio.
 - El fondo actual. El fondo de macOS **no se redistribuye**; puedes añadir un fondo propio localmente a `~/.config/omarchy/backgrounds/tokyo-night/` y seleccionarlo desde Omarchy.
@@ -124,7 +128,7 @@ No incluye cambios de Zen, perfiles del navegador, OpenCode ni paquetes completo
 
 ## Archivos y pruebas
 
-- `payload/`: configuración portable y diez plugins con identificadores `lavanda.*`.
+- `payload/`: configuración portable y trece plugins con identificadores `lavanda.*`.
 - `installer.py`: revisión, instalación, copias y restauración.
 - `dock.lock.json`: revisión del fork y huellas de sus archivos; `payload/dock/`: preferencias y lanzador gestionado.
 - `compatibility.json`: huellas de la base con la que se han validado los paneles.
@@ -133,10 +137,11 @@ No incluye cambios de Zen, perfiles del navegador, OpenCode ni paquetes completo
 
 ```bash
 python3 -m unittest discover -s tests -v
+node tests/emoji-search.cjs
 ```
 
 Las pruebas de archivos usan directorios temporales; no cambian el escritorio de quien las ejecuta. La prueba de selección del historial se omite si no hay fzf instalado.
 
 ## Licencia
 
-MIT. Los paneles derivados de Omarchy conservan su licencia y atribución en [LICENSES/Omarchy-MIT.txt](LICENSES/Omarchy-MIT.txt). Consulta [THIRD_PARTY.md](THIRD_PARTY.md). Proyecto personal, sin afiliación con Omarchy, elementaryOS o Apple.
+MIT. Los paneles derivados de Omarchy conservan su licencia y atribución en [LICENSES/Omarchy-MIT.txt](LICENSES/Omarchy-MIT.txt). Los datos españoles de emojis conservan la licencia Unicode en [LICENSES/Unicode-3.0.txt](LICENSES/Unicode-3.0.txt). Consulta [THIRD_PARTY.md](THIRD_PARTY.md). Proyecto personal, sin afiliación con Omarchy, elementaryOS o Apple.

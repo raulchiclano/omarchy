@@ -64,6 +64,7 @@ Item {
   property bool requestActive: false
   property bool rowsLoaded: false
   property string activeMenu: "root"
+  readonly property bool appsView: !dmenuActive && activeMenu === "apps"
   property string filterText: ""
   property int selectedIndex: 0
   property bool cursorActive: false
@@ -105,22 +106,23 @@ Item {
   readonly property real rowReservedBorderRight: Border.right(selectedBorderSpec)
   readonly property int cornerRadius: Style.space(14)
   property int contentMargin: Style.space(16)
-  property int headerHeight: Math.max(Style.space(34), Style.font.title + Style.spacing.controlPaddingY * 2)
+  property int headerHeight: root.appsView ? Style.space(52) : Math.max(Style.space(34), Style.font.title + Style.spacing.controlPaddingY * 2)
   property int contentSpacing: Style.space(8)
-  property int baseRowHeight: Style.space(44)
-  property int detailRowHeight: Style.space(56)
+  property int baseRowHeight: Style.space(root.appsView ? 72 : 44)
+  property int detailRowHeight: Style.space(root.appsView ? 72 : 56)
   // How much of the first hidden row stays visible at the fold — enough to
   // read as a cut-off row rather than a bottom border.
   property int rowPeek: Math.round(baseRowHeight * 0.55)
-  property int rowSpacing: Style.space(2)
+  property int rowSpacing: Style.space(root.appsView ? 4 : 2)
+  readonly property int appsFooterSpace: root.appsView ? Style.space(30) + contentSpacing : 0
   property int dividerHeight: Style.space(17)
   property bool searchDivider: false
   property int layoutSerial: 0
-  property int cardWidth: Math.min(root.dmenuActive ? Style.space(root.dmenuWidth) : ((root.activeMenu === "trigger.capture.screenrecord" || root.activeMenu === "style.font") ? Style.space(520) : Style.space(360)), panel.width - Style.gapsOut * 2)
+  property int cardWidth: Math.min(root.dmenuActive ? Style.space(root.dmenuWidth) : ((root.appsView || root.activeMenu === "trigger.capture.screenrecord" || root.activeMenu === "style.font") ? Style.space(520) : Style.space(360)), panel.width - Style.gapsOut * 2)
   property int visibleRowsHeight: root.dmenuActive ? dmenuRowListHeight(layoutSerial, displayModel.count, filterText) : rowListHeight(layoutSerial, displayModel.count, filterText, searchDivider)
   property int cardHeight: root.dmenuActive
     ? Math.min(contentMargin * 2 + headerHeight + (mode === "input" ? 0 : contentSpacing + visibleRowsHeight), panel.height - Style.gapsOut * 2)
-    : Math.min(contentMargin * 2 + headerHeight + contentSpacing + visibleRowsHeight, panel.height - Style.gapsOut * 2)
+    : Math.min(contentMargin * 2 + headerHeight + contentSpacing + visibleRowsHeight + appsFooterSpace, panel.height - Style.gapsOut * 2)
 
   function finishRequest(selection) {
     if (!root.requestActive || !root.doneFile) {
@@ -152,7 +154,7 @@ Item {
   // Menu rows only surface their detail while a search is narrowing them;
   // dmenu rows carry caller-supplied subtext that must always be visible.
   function rowHeightForDetail(detail) {
-    return (root.filterText || root.dmenuActive) && detail ? root.detailRowHeight : root.baseRowHeight
+    return (root.appsView || root.filterText || root.dmenuActive) && detail ? root.detailRowHeight : root.baseRowHeight
   }
 
   // Height the card can devote to rows before running off the screen — or
@@ -161,12 +163,12 @@ Item {
   // derived from the card height, which this value feeds.
   function availableRowsHeight() {
     var top = panel.cardTop >= 0 ? panel.cardTop : Style.gapsOut
-    var available = panel.height - top - Style.gapsOut - root.contentMargin * 2 - root.headerHeight - root.contentSpacing
+    var available = panel.height - top - Style.gapsOut - root.contentMargin * 2 - root.headerHeight - root.contentSpacing - root.appsFooterSpace
     // The starting menu sets the ceiling along with the offset: drilling into
     // a longer submenu scrolls behind the fold instead of growing the card.
     if (panel.maxRowsHeight >= 0) available = Math.min(available, panel.maxRowsHeight)
     // A card that swallows the whole screen reads as a page, not a menu.
-    return Math.min(available, Math.round(panel.height * 0.7))
+    return Math.min(available, root.appsView ? Style.space(460) : Math.round(panel.height * 0.7))
   }
 
   // When every row fits, the list gets its full height. When they don't,
@@ -512,7 +514,7 @@ Item {
   }
 
   function displayRow(entry, detail, score, section) {
-    return MenuModel.displayRow(root.items, root.itemOrder, root.checkedResults, entry, detail, score, section)
+    return MenuModel.displayRow(root.items, root.itemOrder, root.checkedResults, entry, root.appsView && entry.kind === "app" ? entry.description : detail, score, section)
   }
 
   function rebuildDmenuDisplay() {
@@ -1160,15 +1162,34 @@ Item {
           color: "transparent"
 
           Text {
-            textFormat: Text.PlainText
+            visible: root.appsView
+            text: ""
+            color: "#B4A1F5"
+            font.family: Style.font.family
+            font.pixelSize: Style.space(19)
+            anchors.left: parent.left
+            anchors.leftMargin: Style.space(7)
+            anchors.verticalCenter: parent.verticalCenter
+          }
+          Rectangle {
+            visible: root.appsView
             anchors.left: parent.left
             anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: 1
+            color: "#393344"
+          }
+          Text {
+            textFormat: Text.PlainText
+            anchors.left: parent.left
+            anchors.leftMargin: root.appsView ? Style.space(39) : 0
+            anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
-            text: root.filterText || (root.dmenuActive ? (root.dmenuPrompt + "…") : ((root.item(root.activeMenu) ? (root.item(root.activeMenu).title || root.item(root.activeMenu).label) : "Buscar") + "…"))
+            text: root.appsView ? root.filterText || "Buscar aplicaciones…" : root.filterText || (root.dmenuActive ? (root.dmenuPrompt + "…") : ((root.item(root.activeMenu) ? (root.item(root.activeMenu).title || root.item(root.activeMenu).label) : "Buscar") + "…"))
             color: root.foreground
-            opacity: root.filterText ? 1 : 0.58
+            opacity: root.filterText ? 1 : root.appsView ? 0.75 : 0.58
             font.family: root.fontFamily
-            font.pixelSize: Style.space(15)
+            font.pixelSize: Style.space(root.appsView ? 18 : 15)
             elide: Text.ElideRight
           }
 
@@ -1228,7 +1249,7 @@ Item {
 
               width: ListView.view.width
               height: root.rowHeightForDetail(row.detail)
-              radius: root.cornerRadius
+              radius: root.appsView ? Style.space(10) : root.cornerRadius
               color: row.hasCursor ? root.selectedBackground : "transparent"
               borderSpec: row.hasCursor ? root.selectedBorderSpec : Border.none()
 
@@ -1262,18 +1283,18 @@ Item {
               Image {
                 id: appIconImage
                 visible: row.isApp
-                width: Style.font.iconLarge
-                height: Style.font.iconLarge
+                width: root.appsView ? Style.space(32) : Style.font.iconLarge
+                height: width
                 fillMode: Image.PreserveAspectFit
                 // Decode at physical pixels — a logical-size decode leaves
                 // PNG icons upscaled and blurry on HiDPI displays.
                 sourceSize.width: width * Screen.devicePixelRatio
                 sourceSize.height: height * Screen.devicePixelRatio
                 source: row.isApp && root.appLibrary ? root.appLibrary.iconSource(row.appIcon) : ""
-                asynchronous: true
+                asynchronous: !root.appsView
                 anchors.left: parent.left
                 anchors.leftMargin: root.rowReservedBorderLeft + Style.space(8) + (Style.space(36) - width) / 2
-                y: contentColumn.y + labelText.y + (labelText.height - height) / 2
+                y: root.appsView ? (parent.height - height) / 2 : contentColumn.y + labelText.y + (labelText.height - height) / 2
               }
 
               Column {
@@ -1301,9 +1322,9 @@ Item {
                   textFormat: Text.PlainText
                   width: parent.width
                   text: row.detail
-                  visible: (root.filterText || row.kind === "dmenu") && row.detail.length > 0
+                  visible: (root.appsView || root.filterText || row.kind === "dmenu") && row.detail.length > 0
                   color: root.foreground
-                  opacity: 0.52
+                  opacity: root.appsView ? 0.73 : 0.52
                   font.family: root.fontFamily
                   font.pixelSize: Style.font.bodySmall
                   elide: Text.ElideRight
@@ -1312,7 +1333,7 @@ Item {
 
               Row {
                 id: trail
-                width: Style.space(14)
+                width: root.appsView ? Style.space(48) : Style.space(14)
                 anchors.right: parent.right
                 anchors.rightMargin: root.rowReservedBorderRight + Style.space(8)
                 y: contentColumn.y + labelText.y + (labelText.height - height) / 2
@@ -1331,11 +1352,11 @@ Item {
 
                 Text {
                   textFormat: Text.PlainText
-                  text: row.kind === "menu" || row.kind === "link" ? "›" : ""
+                  text: root.appsView && row.isApp ? "Abrir ↵" : row.kind === "menu" || row.kind === "link" ? "›" : ""
                   color: row.hasCursor ? root.selectedText : root.foreground
-                  opacity: row.kind === "menu" || row.kind === "link" ? 0.36 : 0
+                  opacity: root.appsView && row.isApp ? (row.hasCursor ? 0.9 : 0) : row.kind === "menu" || row.kind === "link" ? 0.36 : 0
                   font.family: root.fontFamily
-                  font.pixelSize: Style.space(15)
+                  font.pixelSize: Style.space(root.appsView ? 12 : 15)
                   font.weight: Font.Normal
                   anchors.verticalCenter: parent.verticalCenter
                 }
@@ -1428,7 +1449,30 @@ Item {
 
         Item {
           width: parent.width
-          height: 0
+          height: root.appsView ? Style.space(30) : 0
+          visible: root.appsView
+          Rectangle {
+            anchors.top: parent.top
+            width: parent.width
+            height: 1
+            color: "#393344"
+          }
+          Text {
+            anchors.left: parent.left
+            anchors.verticalCenter: parent.verticalCenter
+            text: "↑ ↓  Elegir     ↵  Abrir     Esc  " + (root.filterText ? "Limpiar" : "Cerrar")
+            color: "#B3A8C4"
+            font.family: root.fontFamily
+            font.pixelSize: Style.space(11)
+          }
+          Text {
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            text: displayModel.count + (displayModel.count === 1 ? " aplicación" : " aplicaciones")
+            color: "#B3A8C4"
+            font.family: root.fontFamily
+            font.pixelSize: Style.space(11)
+          }
         }
       }
     }
