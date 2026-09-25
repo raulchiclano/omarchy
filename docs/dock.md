@@ -10,7 +10,10 @@
 - No reserva espacio permanentemente para el dock.
 - Menús y selector en español, Adwaita Sans, selección lavanda y paneles de radio 14 px.
 - Aplicaciones con ventanas abiertas después de los favoritos, separadas discretamente y sin duplicados. Se retiran al cerrar su última ventana; clic derecho → «Fijar en el dock» para conservarlas. Las aplicaciones sin lanzador reconocido aparecen con icono genérico y no se pueden fijar. No incluye procesos sin ventanas.
-- Clic: enfoca la aplicación si está abierta o la inicia.
+- Clic: enfoca la última ventana usada de la aplicación en el escritorio actual. Si no hay ninguna aquí, abre una nueva cuando la aplicación lo permite. Foot, Zen, Archivos y VS Code están comprobados.
+- Si ya está abierta y no ofrece una acción conocida de ventana nueva (por ejemplo Spotify), muestra el menú sin saltar de escritorio. «Ir a ventana · Escritorio N» permite ir explícitamente a la última ventana usada fuera del escritorio actual.
+- «Nueva ventana aquí» abre otra aunque haya ventanas locales. «Cerrar ventana aquí» solo cierra una ventana del escritorio actual. Todavía no incluye selector entre varias ventanas.
+- En varios monitores usa el escritorio que tiene el foco; las reglas particulares de cada aplicación pueden decidir dónde aparece una ventana nueva.
 - Nautilus, Zen, Foot, VS Code y WhatsApp como favoritos iniciales. No instala esas aplicaciones ni transporta cuentas. Conserva la lista existente, incluso si está vacía.
 - Inicio automático mediante una entrada XDG de Hyprland. Mantiene el dock como proceso separado de la shell principal.
 
