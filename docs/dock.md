@@ -14,6 +14,7 @@
 - Si ya está abierta y no ofrece una acción conocida de ventana nueva (por ejemplo Spotify), muestra el menú sin saltar de escritorio. «Ver ventanas (N)…» permite elegir una ventana concreta. Primero aparecen las de «Este escritorio» y después las de «Otros escritorios», con título y escritorio. Elegir una de otro escritorio te lleva explícitamente a ella.
 - «Nueva ventana aquí» abre otra aunque haya ventanas locales. «Cerrar ventana aquí» solo cierra una ventana del escritorio actual. La lista tiene desplazamiento para muchas ventanas y permite usar ↑/↓ y Enter; «Volver» o Escape regresa al menú. Los títulos iguales se distinguen con un número.
 - En varios monitores usa el escritorio que tiene el foco; las reglas particulares de cada aplicación pueden decidir dónde aparece una ventana nueva.
+- Indicadores: sin marca si está cerrada; punto tenue si solo hay ventanas en otros escritorios; un punto lavanda si hay una aquí; dos si hay varias aquí; una rayita más luminosa cuando la aplicación tiene el foco. Al pasar el ratón muestra las cantidades exactas aquí y en otros escritorios.
 - Nautilus, Zen, Foot, VS Code y WhatsApp como favoritos iniciales. No instala esas aplicaciones ni transporta cuentas. Conserva la lista existente, incluso si está vacía.
 - Inicio automático mediante una entrada XDG de Hyprland. Mantiene el dock como proceso separado de la shell principal.
 
