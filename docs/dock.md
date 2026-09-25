@@ -9,6 +9,7 @@
 - Visible cuando ninguna ventana se superpone; se oculta al taparlo. Acercar el puntero al borde inferior lo revela.
 - No reserva espacio permanentemente para el dock.
 - Menús y selector en español, Adwaita Sans, selección lavanda y paneles de radio 14 px.
+- Aplicaciones con ventanas abiertas después de los favoritos, separadas discretamente y sin duplicados. Se retiran al cerrar su última ventana; clic derecho → «Fijar en el dock» para conservarlas. Las aplicaciones sin lanzador reconocido aparecen con icono genérico y no se pueden fijar. No incluye procesos sin ventanas.
 - Clic: enfoca la aplicación si está abierta o la inicia.
 - Nautilus, Zen, Foot, VS Code y WhatsApp como favoritos iniciales. No instala esas aplicaciones ni transporta cuentas. Conserva la lista existente, incluso si está vacía.
 - Inicio automático mediante una entrada XDG de Hyprland. Mantiene el dock como proceso separado de la shell principal.
