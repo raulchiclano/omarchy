@@ -90,10 +90,10 @@ omarchy pkg add foot starship fzf jq adwaita-fonts noto-fonts-emoji ttf-jetbrain
 Las sugerencias y edición de línea de ble.sh son opcionales:
 
 ```bash
-omarchy pkg aur add blesh-git
+./install.sh install-blesh
 ```
 
-Sin ble.sh se conserva Bash estándar con el prompt y el historial personalizados. Se probó con `blesh-git 0.4.0_devel4.r2350.d81fd54f-1`. No se empaqueta ble.sh ni se cambia de shell.
+Este paso explícito invoca `omarchy pkg aur add blesh-git` en una terminal interactiva y comprueba que el paquete quedó instalado. Si ya está presente, no hace nada. Sin ble.sh se conserva Bash estándar con el prompt y el historial personalizados. Se probó con `blesh-git 0.4.0_devel4.r2350.d81fd54f-1`. No se empaqueta ble.sh ni se cambia de shell.
 
 ## Actualizar o deshacer
 

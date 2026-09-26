@@ -206,6 +206,31 @@ class InstallerTest(unittest.TestCase):
             with self.assertRaisesRegex(m.Problem, 'Base no validada'):
                 m.check_compatibility({'desktop'}, self.base)
 
+    def test_install_blesh_uses_omarchy_once_and_checks_result(self):
+        installed = Path(self.tmp.name) / 'ble.sh'
+        def install(command, **kwargs):
+            self.assertEqual(command, ['omarchy', 'pkg', 'aur', 'add', 'blesh-git'])
+            self.assertTrue(kwargs['check'])
+            installed.write_text('installed')
+        with patch.object(m, 'BLESH_PATH', installed), \
+             patch.object(m.shutil, 'which', return_value='/usr/bin/omarchy'), \
+             patch.object(m.sys.stdin, 'isatty', return_value=True), \
+             patch.object(m.subprocess, 'run', side_effect=install) as run:
+            m.install_blesh(Path.home())
+            m.install_blesh(Path.home())
+            run.assert_called_once()
+
+    def test_install_blesh_requires_interactive_terminal_and_current_home(self):
+        installed = Path(self.tmp.name) / 'ble.sh'
+        with patch.object(m, 'BLESH_PATH', installed), \
+             patch.object(m.shutil, 'which', return_value='/usr/bin/omarchy'), \
+             patch.object(m.subprocess, 'run') as run:
+            with self.assertRaisesRegex(m.Problem, 'no admite --home'):
+                m.install_blesh(self.home)
+            with self.assertRaisesRegex(m.Problem, 'terminal interactiva'):
+                m.install_blesh(Path.home())
+            run.assert_not_called()
+
     def test_unknown_bash_integration_rejected(self):
         self.write('.bashrc', 'source ~/.my-custom-init')
         with self.assertRaisesRegex(m.Problem, 'carga estándar'):

@@ -26,6 +26,7 @@ STATE = '.local/state/omarchy-lavanda'
 CONFIG = '.config/omarchy-lavanda'
 COMPONENTS = {'desktop', 'terminal', 'shell', 'icons', 'workspaces', 'dock'}
 DEFAULT = 'desktop,terminal,shell,icons,dock'
+BLESH_PATH = Path('/usr/share/blesh/ble.sh')
 SERVICES = ('osd', 'notifications', 'menu', 'clipboard', 'emojis', 'lock')
 
 
@@ -494,8 +495,8 @@ def dependencies(parts):
         version = subprocess.check_output(['fzf', '--version'], text=True).split()[0]
         if tuple(map(int, version.split('.')[:3])) < (0, 74, 3):
             raise Problem('El historial se validó con fzf >= 0.74.3. Instala una versión compatible.')
-        if not Path('/usr/share/blesh/ble.sh').exists():
-            print('AVISO: ble.sh no está instalado; Bash funcionará sin sus sugerencias.')
+        if not BLESH_PATH.is_file():
+            print('AVISO: ble.sh no está instalado; usa ./install.sh install-blesh para añadir sus sugerencias.')
     fonts = []
     if 'desktop' in parts:
         fonts.extend(['Adwaita Sans', 'Noto Color Emoji'])
@@ -524,9 +525,26 @@ def stop_live_dock(home):
     raise Problem('El dock no se ha detenido. No se han aplicado cambios.')
 
 
+def install_blesh(home):
+    """Install Lavanda's optional Bash editor through Omarchy's AUR command."""
+    if home != Path.home():
+        raise Problem('install-blesh instala en el equipo actual; no admite --home.')
+    if BLESH_PATH.is_file():
+        print('ble.sh ya está instalado.')
+        return
+    if not shutil.which('omarchy'):
+        raise Problem('No se encontró el gestor de paquetes de Omarchy.')
+    if not sys.stdin.isatty():
+        raise Problem('Ejecuta install-blesh en una terminal interactiva para responder al gestor de paquetes.')
+    subprocess.run(['omarchy', 'pkg', 'aur', 'add', 'blesh-git'], check=True)
+    if not BLESH_PATH.is_file():
+        raise Problem('El gestor de paquetes terminó sin instalar /usr/share/blesh/ble.sh.')
+    print('ble.sh instalado. Abre una terminal nueva para cargarlo.')
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Omarchy Lavanda — revisar, instalar y restaurar sin sudo.')
-    parser.add_argument('action', nargs='?', choices=['plan', 'apply', 'doctor', 'backups', 'restore'], default='plan')
+    parser.add_argument('action', nargs='?', choices=['plan', 'apply', 'doctor', 'backups', 'restore', 'install-blesh'], default='plan')
     parser.add_argument('backup', nargs='?', help='Identificador para restore')
     parser.add_argument('--only', default=DEFAULT, help='desktop,terminal,shell,icons,dock,workspaces (este último opcional)')
     parser.add_argument('--diff', action='store_true', help='Mostrar el contenido de cada cambio')
@@ -547,6 +565,9 @@ def main(argv=None):
     base = Path('/usr/share/omarchy')
     if args.action not in ('backups', 'restore') and os.environ.get('OMARCHY_PATH', str(base)) != str(base):
         raise Problem('Esta edición requiere Omarchy en /usr/share/omarchy; no es para dev link.')
+    if args.action == 'install-blesh':
+        install_blesh(home)
+        return
     if args.action == 'backups':
         directory = target(home, STATE + '/backups')
         for entry in sorted(directory.glob('*/manifest.json')) if directory.exists() else []:

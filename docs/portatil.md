@@ -28,7 +28,7 @@ Para copiar el diagnóstico sin perder los errores:
 
 Si faltan herramientas o fuentes, el diagnóstico las identifica. Los paquetes
 principales se detallan en el README. Para reproducir también las sugerencias de
-Bash, instala la dependencia opcional `blesh-git`.
+Bash, instala la dependencia opcional con `./install.sh install-blesh`.
 
 ## 2. Revisar e instalar
 
