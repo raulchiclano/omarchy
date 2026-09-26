@@ -139,6 +139,60 @@ class InstallerTest(unittest.TestCase):
             m.check_live_lock(self.home / 'other', changes)
             check.assert_not_called()
 
+    def test_stop_live_shell_refuses_a_compositor_lock(self):
+        with patch.object(m.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)) as run:
+            with self.assertRaisesRegex(m.Problem, 'Desbloquea'):
+                m.stop_live_shell()
+            run.assert_called_once_with(['omarchy-hyprland-session-locked'], capture_output=True)
+
+    def test_stop_live_shell_recovers_if_kill_fails(self):
+        calls = []
+        def run(command, **kwargs):
+            calls.append(command[:2])
+            if command[0] == 'omarchy-hyprland-session-locked':
+                return subprocess.CompletedProcess(command, 1)
+            if command[:2] == ['qs', 'list']:
+                return subprocess.CompletedProcess(command, 0, stdout='[{"pid": 123}]')
+            if command[:2] == ['qs', 'kill']:
+                raise subprocess.CalledProcessError(1, command)
+            return subprocess.CompletedProcess(command, 0)
+        with patch.object(m.subprocess, 'run', side_effect=run):
+            with self.assertRaises(subprocess.CalledProcessError):
+                m.stop_live_shell()
+        self.assertEqual(calls, [['omarchy-hyprland-session-locked'], ['qs', 'list'],
+                                 ['qs', 'kill'], ['omarchy', 'restart']])
+
+    def test_apply_restarts_shell_after_a_failed_transaction(self):
+        changes = [{'path': '.config/omarchy/plugins/lavanda.clock/manifest.json'}]
+        calls = []
+        def checked_lock(*args):
+            calls.append('lock')
+        def stop_shell():
+            calls.append('stop')
+        def failed_transaction(*args, **kwargs):
+            self.assertTrue(kwargs['lock_checked'])
+            calls.append('write')
+            raise OSError('simulated write failure')
+        def run(command, **kwargs):
+            self.assertEqual(command, ['omarchy', 'restart', 'shell'])
+            self.assertTrue(kwargs['check'])
+            calls.append('restart')
+        session_env = {'HYPRLAND_INSTANCE_SIGNATURE': 'test',
+                       'XDG_CONFIG_HOME': str(self.home / '.config'),
+                       'XDG_STATE_HOME': str(self.home / '.local/state'),
+                       'XDG_DATA_HOME': str(self.home / '.local/share'),
+                       'XDG_BIN_HOME': str(self.home / '.local/bin')}
+        with patch.object(m.Path, 'home', return_value=self.home), \
+             patch.dict(os.environ, session_env), \
+             patch.object(m, 'dependencies'), patch.object(m, 'plan', return_value=changes), \
+             patch.object(m, 'show'), patch.object(m, 'check_live_lock', side_effect=checked_lock), \
+             patch.object(m, 'stop_live_shell', side_effect=stop_shell), \
+             patch.object(m, 'transaction', side_effect=failed_transaction), \
+             patch.object(m.subprocess, 'run', side_effect=run):
+            with self.assertRaisesRegex(OSError, 'simulated write failure'):
+                m.main(['apply', '--only', 'desktop', '--yes', '--home', str(self.home)])
+        self.assertEqual(calls, ['lock', 'stop', 'write', 'restart'])
+
     def test_lock_authentication_service_matches_validated_omarchy(self):
         expected = json.loads((ROOT / 'compatibility.json').read_text())['desktop']['shell/plugins/lock/Service.qml']
         self.assertEqual(m.digest((ROOT / 'payload/plugins/lavanda.lock/Service.qml').read_bytes()), expected)

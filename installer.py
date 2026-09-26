@@ -392,10 +392,11 @@ def check_live_lock(home, changes):
         raise Problem('Desbloquea la sesión antes de instalar o restaurar los paneles.')
 
 
-def transaction(home, changes, operation='apply'):
+def transaction(home, changes, operation='apply', lock_checked=False):
     if not changes:
         return None
-    check_live_lock(home, changes)
+    if not lock_checked:
+        check_live_lock(home, changes)
     # All path and content checks happen before creating the backup or writing config.
     def unchanged(item):
         p = target(home, item['path'])
@@ -525,6 +526,26 @@ def stop_live_dock(home):
     raise Problem('El dock no se ha detenido. No se han aplicado cambios.')
 
 
+def stop_live_shell():
+    """Keep the plugin watcher from loading an installation in progress."""
+    if subprocess.run(['omarchy-hyprland-session-locked'], capture_output=True).returncode == 0:
+        raise Problem('Desbloquea la sesión antes de detener la shell de Omarchy.')
+    path = '/usr/share/omarchy/shell'
+    try:
+        for _ in range(10):
+            status = subprocess.run(['qs', 'list', '-p', path, '--json', '--any-display'],
+                                    capture_output=True, text=True, check=True)
+            output = status.stdout.strip()
+            if not output or output.startswith('No running instances') or not json.loads(output):
+                return
+            subprocess.run(['qs', 'kill', '-p', path, '--any-display'], capture_output=True, check=True)
+        raise Problem('La shell de Omarchy no se ha detenido. No se han aplicado cambios.')
+    except BaseException:
+        # A failed stop may have killed some instances; restore the desktop.
+        subprocess.run(['omarchy', 'restart', 'shell'], capture_output=True, check=False)
+        raise
+
+
 def install_blesh(home):
     """Install Lavanda's optional Bash editor through Omarchy's AUR command."""
     if home != Path.home():
@@ -604,19 +625,29 @@ def main(argv=None):
     dock_changed = any(x['path'].startswith(('.local/share/hyprland-dock/', '.config/hyprland-dock/'))
                        or x['path'] == '.local/bin/hyprland-dock' for x in changes)
     live_dock = dock_changed and home == Path.home() and os.environ.get('HYPRLAND_INSTANCE_SIGNATURE')
+    live_shell = (shell_files_changed(changes) and home == Path.home()
+                  and (os.environ.get('HYPRLAND_INSTANCE_SIGNATURE') or os.environ.get('WAYLAND_DISPLAY')))
+    shell_stop_attempted = False
     try:
+        if live_shell:
+            check_live_lock(home, changes)
+            stop_live_shell()
+            shell_stop_attempted = True
         if live_dock:
             stop_live_dock(home)
-        identifier = transaction(home, changes, args.action)
+        identifier = transaction(home, changes, args.action, lock_checked=bool(live_shell))
     finally:
-        # On rollback/restore the old launcher is back; on a fresh uninstall it is gone.
-        launcher = home / '.local/bin/hyprland-dock'
-        if live_dock and launcher.is_file() and os.access(launcher, os.X_OK):
-            subprocess.run([str(launcher), '--daemonize'], check=False)
+        try:
+            if shell_stop_attempted:
+                subprocess.run(['omarchy', 'restart', 'shell'], check=True)
+        finally:
+            # On rollback/restore the old launcher is back; on a fresh uninstall it is gone.
+            launcher = home / '.local/bin/hyprland-dock'
+            if live_dock and launcher.is_file() and os.access(launcher, os.X_OK):
+                subprocess.run([str(launcher), '--daemonize'], check=False)
     print(f'\nHecho. Copia local: {identifier}\nDeshacer: ./install.sh restore {identifier}')
     if shell_files_changed(changes) and home == Path.home():
-        if os.environ.get('HYPRLAND_INSTANCE_SIGNATURE') or os.environ.get('WAYLAND_DISPLAY'):
-            subprocess.run(['omarchy', 'restart', 'shell'], check=True)
+        if live_shell:
             print('Paneles recargados. Abre una terminal nueva para probar Bash/Foot.')
         else:
             print('Sin sesión gráfica activa: los paneles se cargarán al iniciar sesión.')

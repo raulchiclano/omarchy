@@ -2,7 +2,7 @@
 
 Mi personalización de Omarchy, inspirada en elementaryOS y macOS: lavanda, bordes suaves, menús en español y una terminal cómoda de leer.
 
-Incluye la configuración que uso y un instalador que **enseña los cambios, guarda una copia y permite deshacerlos**. No requiere `sudo` ni modifica archivos de `/usr/share/omarchy`.
+Incluye la configuración que uso y un instalador que **enseña los cambios, guarda una copia y permite deshacerlos**. `apply` no requiere `sudo` ni modifica archivos de `/usr/share/omarchy`. La instalación opcional de ble.sh usa el gestor de paquetes de Omarchy y puede pedir la contraseña de administrador.
 
 > Esta edición se preparó en **Try Omarchy, runtime 4.0.3-4**, y se probó también en **Omarchy nativo 4.0.4-1**, ambos con Hyprland **Lua** y la shell **Quickshell**. El instalador compara los archivos de la base antes de activar los paneles. No es un tema universal para todas las versiones de Omarchy. [Compatibilidad](docs/compatibilidad.md).
 
@@ -26,7 +26,7 @@ cd omarchy
 ./install.sh plan --diff
 ```
 
-Instala con la sesión desbloqueada. El instalador recarga la shell al finalizar. Abre una **terminal nueva** para ver Foot y Bash. Para completar la combinación original de colores e iconos, elige Tokyo Night:
+Instala con la sesión desbloqueada. El instalador detiene brevemente la shell mientras cambia sus plugins y la vuelve a arrancar al finalizar. Abre una **terminal nueva** para ver Foot y Bash. Para completar la combinación original de colores e iconos, elige Tokyo Night:
 
 ```bash
 omarchy theme set tokyo-night

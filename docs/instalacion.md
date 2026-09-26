@@ -28,7 +28,7 @@ El instalador reconoce la integración Bash y los identificadores `raulchiclano.
 
 Se guardan bajo `~/.local/state/omarchy-lavanda/backups/ID/`. Cada copia tiene permisos privados y un manifiesto con rutas, permisos y huellas; los archivos originales se guardan con nombres numéricos. Estas copias pueden contener preferencias personales: **no las añadas a Git**.
 
-Antes de escribir se revisan todos los destinos. Las escrituras usan reemplazo atómico de cada archivo y se activa `shell.json` al final. Si falla una escritura, se revierten las ya completadas. Esto no convierte el conjunto de archivos en una transacción del sistema de archivos: un corte eléctrico puede interrumpirlo. Una copia con estado `prepared` permite revisar/restaurar los archivos que llegaron a aplicarse.
+Antes de escribir se revisan todos los destinos. Si cambian plugins de una sesión activa, se comprueba que esté desbloqueada y se detiene temporalmente la shell de Omarchy para evitar recargas mientras se copian archivos; se arranca de nuevo incluso si falla la operación. Las escrituras usan reemplazo atómico de cada archivo y se activa `shell.json` al final. Si falla una escritura, se revierten las ya completadas. Esto no convierte el conjunto de archivos en una transacción del sistema de archivos: un corte eléctrico puede interrumpirlo. Una copia con estado `prepared` permite revisar/restaurar los archivos que llegaron a aplicarse.
 
 La restauración comprueba que no haya cambios posteriores ni copias dañadas. También crea su propia copia, por lo que puedes deshacer una restauración. Los directorios vacíos que creó la instalación pueden permanecer; no se eliminan recursivamente directorios de usuario.
 
