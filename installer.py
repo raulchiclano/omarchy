@@ -37,6 +37,15 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
+def digest_allowed(expected, actual):
+    """Accept one validated hash or any hash from a set of validated bases."""
+    if isinstance(expected, str):
+        return actual == expected
+    if isinstance(expected, list) and expected and all(isinstance(value, str) for value in expected):
+        return actual in expected
+    raise Problem('compatibility.json contiene una lista de huellas no válida.')
+
+
 def json_bytes(value):
     return (json.dumps(value, indent=2, ensure_ascii=False) + '\n').encode()
 
@@ -195,7 +204,8 @@ def check_compatibility(parts, base):
     failures = []
     for group in sorted(groups):
         changed = [name for name, expected in meta[group].items()
-                   if not (base / name).is_file() or digest((base / name).read_bytes()) != expected]
+                   if not (base / name).is_file()
+                   or not digest_allowed(expected, digest((base / name).read_bytes()))]
         if changed:
             failures.append(f'{group}: {len(changed)} archivos distintos/ausentes ({", ".join(changed[:3])})')
     if failures:
@@ -482,8 +492,8 @@ def dependencies(parts):
             raise Problem('El dock requiere Quickshell >= 0.3.0.')
     if 'shell' in parts:
         version = subprocess.check_output(['fzf', '--version'], text=True).split()[0]
-        if tuple(map(int, version.split('.')[:3])) < (0, 74, 4):
-            raise Problem('El historial se validó con fzf >= 0.74.4. Instala una versión compatible.')
+        if tuple(map(int, version.split('.')[:3])) < (0, 74, 3):
+            raise Problem('El historial se validó con fzf >= 0.74.3. Instala una versión compatible.')
         if not Path('/usr/share/blesh/ble.sh').exists():
             print('AVISO: ble.sh no está instalado; Bash funcionará sin sus sugerencias.')
     fonts = []

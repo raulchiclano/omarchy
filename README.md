@@ -4,7 +4,7 @@ Mi personalización de Omarchy, inspirada en elementaryOS y macOS: lavanda, bord
 
 Incluye la configuración que uso y un instalador que **enseña los cambios, guarda una copia y permite deshacerlos**. No requiere `sudo` ni modifica archivos de `/usr/share/omarchy`.
 
-> Esta edición parte de **Try Omarchy, runtime 4.0.3-4**, con Hyprland **Lua** y la shell **Quickshell**. Los paneles usan APIs de esa edición: el instalador compara la base instalada antes de activarlos. No es un tema universal para todas las versiones de Omarchy. [Compatibilidad](docs/compatibilidad.md).
+> Esta edición se preparó en **Try Omarchy, runtime 4.0.3-4**, y se probó también en **Omarchy nativo 4.0.4-1**, ambos con Hyprland **Lua** y la shell **Quickshell**. El instalador compara los archivos de la base antes de activar los paneles. No es un tema universal para todas las versiones de Omarchy. [Compatibilidad](docs/compatibilidad.md).
 
 **Para el portátil:** [guía paso a paso](docs/portatil.md), con los últimos paneles, atajos y el fondo personal por separado.
 
@@ -79,7 +79,7 @@ El código procede de una revisión exacta del fork, registrada en `dock.lock.js
 
 ## Dependencias
 
-El diagnóstico comprueba las herramientas y fuentes principales. En esta instalación se usan `foot`, `starship`, `fzf` 0.74.4 o posterior, `jq`, `adwaita-fonts`, `noto-fonts-emoji` y `ttf-jetbrains-mono-nerd`. El dock necesita Hyprland y Quickshell 0.3.0 o posterior (`qs`). El instalador está escrito con la biblioteca estándar de Python 3: no instala paquetes del sistema; sí descarga los archivos del dock fijado cuando se selecciona ese componente.
+El diagnóstico comprueba las herramientas y fuentes principales. En esta instalación se usan `foot`, `starship`, `fzf` 0.74.3 o posterior, `jq`, `adwaita-fonts`, `noto-fonts-emoji` y `ttf-jetbrains-mono-nerd`. El dock necesita Hyprland y Quickshell 0.3.0 o posterior (`qs`). El instalador está escrito con la biblioteca estándar de Python 3: no instala paquetes del sistema; sí descarga los archivos del dock fijado cuando se selecciona ese componente.
 
 Si faltan estos paquetes en un Omarchy compatible:
 

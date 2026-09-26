@@ -19,7 +19,7 @@ def supported_fzf():
     if not shutil.which('fzf'):
         return False
     version = subprocess.check_output(['fzf', '--version'], text=True).split()[0]
-    return tuple(map(int, version.split('.')[:3])) >= (0, 74, 4)
+    return tuple(map(int, version.split('.')[:3])) >= (0, 74, 3)
 
 
 class InstallerTest(unittest.TestCase):
@@ -191,6 +191,21 @@ class InstallerTest(unittest.TestCase):
             m.plan(self.home, {'desktop'}, self.base)
         self.assertEqual(before, self.snapshot())
 
+    def test_compatibility_accepts_an_alternative_validated_base(self):
+        compatibility_root = Path(self.tmp.name) / 'compatibility'
+        compatibility_root.mkdir()
+        current = (self.base / 'config/omarchy/shell.json').read_bytes()
+        metadata = {
+            'desktop': {'config/omarchy/shell.json': [m.digest(b'try runtime'), m.digest(current)]},
+            'shell': {},
+        }
+        (compatibility_root / 'compatibility.json').write_text(json.dumps(metadata))
+        with patch.object(m, 'ROOT', compatibility_root):
+            m.check_compatibility({'desktop'}, self.base)
+            (self.base / 'config/omarchy/shell.json').write_text('unknown future base')
+            with self.assertRaisesRegex(m.Problem, 'Base no validada'):
+                m.check_compatibility({'desktop'}, self.base)
+
     def test_unknown_bash_integration_rejected(self):
         self.write('.bashrc', 'source ~/.my-custom-init')
         with self.assertRaisesRegex(m.Problem, 'carga estándar'):
@@ -349,7 +364,7 @@ class InstallerTest(unittest.TestCase):
             for filename in data['entryPoints'].values():
                 self.assertTrue((manifest.parent / filename).is_file(), str(manifest))
 
-    @unittest.skipUnless(supported_fzf(), 'fzf >= 0.74.4 is optional in CI')
+    @unittest.skipUnless(supported_fzf(), 'fzf >= 0.74.3 is optional in CI')
     def test_history_preserves_exact_selected_bytes(self):
         for sample in [b'1\tls -la', b'2\techo "two words"', b'3\techo $(date)',
                        b'4\tprintf "a\\nb"\nnext line', b'5\tprintf "tabs\there"']:

@@ -14,13 +14,24 @@ Exportada de una personalización en uso el 25 de septiembre de 2026:
 | fzf | `0.74.4-1` |
 | Starship | `1.26.0-1` |
 
+La integración de historial admite `fzf` 0.74.3 o posterior. La VM tenía
+0.74.4, mientras que el canal estable de la instalación nativa ofrece 0.74.3;
+ambas variantes usan las opciones comprobadas por las pruebas.
+
+La base de escritorio admite dos juegos de huellas revisados: el runtime de
+Try Omarchy de la VM y Omarchy nativo 4.0.4-1. Try Omarchy conserva backports
+propios en notificaciones e inactividad aunque el resto de la fuente proceda
+del mismo commit. Para esos tres archivos, `compatibility.json` registra las
+dos huellas aceptadas. El resto de los archivos debe seguir coincidiendo de
+forma exacta.
+
 Los números de versión por sí solos no garantizan que las APIs sean iguales. `compatibility.json` contiene SHA-256 de los archivos de la shell, los valores predeterminados de Hyprland y la integración Bash que usa esta edición. No contiene archivos privados ni copias de sesiones.
 
-`desktop` y `workspaces` requieren que coincida la base de escritorio. `shell` requiere que coincidan `default/bash/rc` e `init`. `terminal` puede instalarse por separado sin esa base, si está Foot y la fuente. `icons` requiere el tema Tokyo Night.
+`desktop` y `workspaces` requieren que coincida una base de escritorio validada. Una entrada de `compatibility.json` puede contener una huella o una lista de huellas revisadas. `shell` requiere que coincidan `default/bash/rc` e `init`. `terminal` puede instalarse por separado sin esa base, si está Foot y la fuente. `icons` requiere el tema Tokyo Night.
 
 La comprobación es deliberadamente conservadora: también puede bloquear una actualización inocua. No tiene una opción de «forzar». Un mantenedor debe comparar las diferencias y probar los plugins antes de actualizar las huellas. No basta con regenerar `compatibility.json`.
 
-No se ha validado aún una instalación gráfica completa en una segunda máquina. Se han reutilizado los paneles que funcionaban en la máquina de origen y probado la instalación/restauración en directorios aislados. La comprobación de archivos no sustituye a una prueba visual en el equipo destino.
+El 26 de septiembre de 2026 se instaló el paquete estándar en un portátil con Omarchy nativo 4.0.4-1. La copia terminó completa con 86 archivos; el shell respondió por IPC, Hyprland no mostró errores de configuración y el dock quedó en ejecución. Quickshell sufrió un único fallo durante la recarga simultánea de plugins y Omarchy lo reinició. Queda pendiente comprobar visualmente cada panel y flujo de interacción. También se probó la instalación/restauración en directorios aislados.
 
 ## Formatos y rutas
 

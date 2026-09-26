@@ -98,8 +98,9 @@ con el ratón.
 La escala, resolución, monitores, teclado, audio, red, batería, suspensión y
 sesiones siguen configurados para el portátil. Los tamaños físicos pueden
 variar con la pantalla y su escala aunque los valores de Lavanda sean iguales.
-La compatibilidad se ha comprobado con la base de origen y en instalaciones
-simuladas; la primera prueba en este portátil se hace al llegar a casa.
+La instalación estándar se probó en el portátil con Omarchy nativo 4.0.4-1 el
+26 de septiembre de 2026. El shell y el dock quedaron funcionando; comprueba
+visualmente cada panel y flujo de interacción después de aplicar actualizaciones.
 
 ## 5. Actualizar o volver atrás
 

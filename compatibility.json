@@ -152,8 +152,14 @@
     "shell/plugins/menu/MenuModel.js": "ff6b265ca477d0d04297b0d9a5d9715960069db6da44603160d329e087e55fd8",
     "shell/plugins/menu/manifest.json": "2cf1fe472ac75116c221a01999864bc2227f567ab42d6b61565b96551a44c060",
     "shell/plugins/notifications/NotificationLogic.js": "99e82df6524ee1ee1d52673b2a1496f62b14b220288f186c41fd8deed77a69bd",
-    "shell/plugins/notifications/Service.qml": "e1f17b537e06c4e5d904f3c7ca0292ece330503f684430272d490fa78815bf04",
-    "shell/plugins/notifications/components/NotificationCard.qml": "7522c2f6453a5db357c80132da53e8aa6d2881519ade10818dca0ca6355e7d51",
+    "shell/plugins/notifications/Service.qml": [
+      "e1f17b537e06c4e5d904f3c7ca0292ece330503f684430272d490fa78815bf04",
+      "11665542e70df80ccd3c785a6143dee2daefd2082e4f75c740adc2c9947cf7c2"
+    ],
+    "shell/plugins/notifications/components/NotificationCard.qml": [
+      "7522c2f6453a5db357c80132da53e8aa6d2881519ade10818dca0ca6355e7d51",
+      "3f023446cfe26b9f70570d7088baab31e56ca374c4a206a7c098b09d36cdff3d"
+    ],
     "shell/plugins/notifications/manifest.json": "82ed1a26f0040ddff78dd0ed1f12c5e4b49929ec5d0efc7ea62bedabbf48e910",
     "shell/plugins/osd/Osd.qml": "a139b64d45f89a6b55ebcbd1233347f75b541b020e24b4286d6e00a6d5f5c50c",
     "shell/plugins/osd/OsdModel.js": "ad8cc27c204587a9aac9a7ec0513c72a1a33fe6e83090ee91b4e2c2bfe5fe35c",
@@ -210,7 +216,10 @@
     "shell/plugins/services/battery/Service.qml": "5557460d74ad329c53dea5850cf8178af106a0e47e09ef7963ce25f4fc2d1b45",
     "shell/plugins/services/battery/manifest.json": "bf6cc1c9eaca2b6830cff592230677d20a26698a79830f273b11380a59bc2899",
     "shell/plugins/services/idle/IdleModel.js": "58226a67d5fc2f33b1a23b55cb32764a8b2091cc94c4d02af1b67f369440b9b8",
-    "shell/plugins/services/idle/Service.qml": "02512cc96ecb82005b82e947ed891549d1721cbefad14fdb2eca9ab50e88c9eb",
+    "shell/plugins/services/idle/Service.qml": [
+      "02512cc96ecb82005b82e947ed891549d1721cbefad14fdb2eca9ab50e88c9eb",
+      "50f5c81e2e94fab32395a5bc3cce982e30a10ab1b3f56cc58f29055951518a51"
+    ],
     "shell/plugins/services/idle/manifest.json": "bb8a5f55257dc49c2b7632304dad19aa12bbc7ad641828f09481909232f30a6f",
     "shell/plugins/services/media/BarWidget.qml": "05b9bca8673facb447d7b10b513865c80b5de7dc61828efc41026de4bb960d42",
     "shell/plugins/services/media/MediaModel.js": "663eeb35c2ecd4488395259a7047d7a12089fa7d9dfaf918e3e15d54ebfdf627",
