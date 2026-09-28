@@ -104,18 +104,20 @@ visualmente cada panel y flujo de interacción después de aplicar actualizacion
 
 ## 5. Actualizar o volver atrás
 
-```bash
-git pull --ff-only
-./install.sh doctor
-./install.sh plan --diff
-./install.sh apply
-```
+Para instalaciones existentes, usa el [protocolo entre equipos](actualizaciones.md).
+El agente debe leer AGENTS.md, detectar lo realmente instalado y revisar las notas
+acumuladas antes de presentar el plan. No basta con hacer git pull.
 
-Para volver a la configuración anterior:
+La orden reutilizable es:
+
+> Actualiza Lavanda siguiendo el protocolo del repositorio. Detecta mi versión instalada y revisa los cambios pendientes. Explícame el plan antes de aplicarlo y deja un informe al terminar.
+
+Para recuperar una copia real de una aplicación que cambió archivos:
 
 ```bash
 ./install.sh backups
 ./install.sh restore ID_DE_LA_COPIA
 ```
 
-No copies toda `~/.config` de la VM: no es necesario para reproducir Lavanda.
+No copies toda ~/.config de la VM. Los eventos verify sin cambios no son copias
+con las que deshacer una instalación anterior.

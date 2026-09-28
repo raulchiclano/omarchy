@@ -392,8 +392,87 @@ def check_live_lock(home, changes):
         raise Problem('Desbloquea la sesión antes de instalar o restaurar los paneles.')
 
 
-def transaction(home, changes, operation='apply', lock_checked=False):
-    if not changes:
+def source_version():
+    """Checkout identity is evidence about the installer, never the installed desktop."""
+    def git(*args):
+        try:
+            return subprocess.check_output(['git', '-C', str(ROOT), *args],
+                                           stderr=subprocess.DEVNULL, text=True, timeout=5).strip()
+        except (OSError, subprocess.SubprocessError):
+            return None
+    own_repository = git('rev-parse', '--show-toplevel') == str(ROOT)
+    revision = git('rev-parse', 'HEAD') if own_repository else None
+    dirty = git('status', '--porcelain') if own_repository else None
+    return {'revision': revision, 'dirty': bool(dirty) if dirty is not None else None,
+            'release': (ROOT / 'VERSION').read_text().strip() if (ROOT / 'VERSION').is_file() else None}
+
+
+def installation_status(home):
+    """Read the transaction journal and check final hashes; do not run desktop commands."""
+    directory = target(home, STATE + '/backups')
+    events, expected, incomplete = [], {}, []
+    for entry in sorted(directory.glob('*/manifest.json')) if directory.exists() else []:
+        record = json.loads(read(home, str(entry.relative_to(home))))
+        identifier = entry.parent.name
+        if record.get('status') != 'complete':
+            incomplete.append({'id': identifier, 'status': record.get('status')})
+            continue
+        events.append({'id': identifier, 'operation': record.get('operation'),
+                       'source': record.get('source'), 'components': record.get('components'),
+                       'files_changed': len(record.get('files', []))})
+        for item in record.get('files', []):
+            expected[item['path']] = item
+    drift = []
+    for name, item in sorted(expected.items()):
+        data = read(home, name, None)
+        actual = digest(data) if data is not None else None
+        mode = stat.S_IMODE(target(home, name).stat().st_mode) if data is not None else None
+        if actual != item['after_hash'] or (data is not None and mode != item['mode']):
+            drift.append(name)
+    return {'schema': 1, 'checkout': source_version(), 'events': events,
+            'last_event': events[-1] if events else None,
+            'baseline': 'recorded' if events and events[-1]['source'] else 'unknown',
+            'drift': drift, 'other_transactions': incomplete,
+            'visual_validation': 'not_recorded_here',
+            'notice': 'Cada evento acredita solo su alcance. restore no instala la versión del checkout. '
+                      'Sin source, versión antigua desconocida. Sin diferencias no acredita pruebas visuales. '
+                      'Drift puede incluir ajustes legítimos; revisar antes de sobrescribir.'}
+
+
+def write_report(home):
+    status = installation_status(home)
+    name = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ')
+    directory = target(home, STATE + '/reports/' + name)
+    directory.mkdir(parents=True, mode=0o700)
+    atomic_write(directory / 'status.json', json_bytes(status), 0o600)
+    body = """# Informe local de actualización Lavanda
+
+Estado: PENDIENTE de completar por el agente. No implica éxito ni validación visual.
+El estado técnico está en status.json. Conservar también el informe previo.
+
+- Equipo (alias, sin nombre personal):
+- Versión/origen anterior y grado de certeza:
+- Versión destino y commit:
+- Componentes revisados/aplicados:
+- Resumen del plan y autorización recibida:
+- Resultado de doctor, apply y plan posterior (incluir errores):
+- Identificador de copia y comando de restauración:
+- Comprobaciones de shell, dock e Hyprland:
+- Pruebas visuales realizadas por Raúl:
+- Pruebas pendientes (bloqueo/desbloqueo, paneles, terminal, etc.):
+- Ajustes locales conservados y divergencias:
+- Incidencias, soluciones y siguiente paso:
+
+Antes de compartir: eliminar rutas personales, nombres, IP, cuentas, registros
+completos y cualquier contenido del portapapeles. Publicar solo un resumen revisado
+con autorización explícita; este informe permanece local por defecto.
+"""
+    atomic_write(directory / 'informe.md', body.encode(), 0o600)
+    return directory / 'informe.md'
+
+
+def transaction(home, changes, operation='apply', lock_checked=False, components=None, record_empty=False):
+    if not changes and not record_empty:
         return None
     if not lock_checked:
         check_live_lock(home, changes)
@@ -417,7 +496,9 @@ def transaction(home, changes, operation='apply', lock_checked=False):
         identifier = datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S.%fZ')
         backup = target(home, f'{STATE}/backups/{identifier}')
         backup.mkdir(parents=True, mode=0o700)
-        metadata = {'version': 2, 'operation': operation, 'status': 'prepared', 'files': []}
+        metadata = {'version': 3, 'operation': operation, 'status': 'prepared', 'files': [],
+                    'source': source_version(), 'components': sorted(components or []),
+                    'visual_validation': 'pending'}
         for index, item in enumerate(changes):
             if item['before'] is not None:
                 atomic_write(backup / str(index), item['before'], 0o600)
@@ -565,9 +646,10 @@ def install_blesh(home):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Omarchy Lavanda — revisar, instalar y restaurar sin sudo.')
-    parser.add_argument('action', nargs='?', choices=['plan', 'apply', 'doctor', 'backups', 'restore', 'install-blesh'], default='plan')
+    parser.add_argument('action', nargs='?', choices=['plan', 'apply', 'doctor', 'backups', 'restore', 'install-blesh', 'status', 'report'], default='plan')
     parser.add_argument('backup', nargs='?', help='Identificador para restore')
     parser.add_argument('--only', default=DEFAULT, help='desktop,terminal,shell,icons,dock,workspaces (este último opcional)')
+    parser.add_argument('--json', action='store_true', help='Estado estructurado con status')
     parser.add_argument('--diff', action='store_true', help='Mostrar el contenido de cada cambio')
     parser.add_argument('--yes', action='store_true', help='Aplicar sin la pregunta final')
     parser.add_argument('--home', type=Path, default=Path.home(), help='Otro HOME, para preparar y probar sin recargar la sesión')
@@ -583,6 +665,13 @@ def main(argv=None):
                               ('XDG_DATA_HOME', home / '.local/share'), ('XDG_BIN_HOME', home / '.local/bin')]:
             if os.environ.get(key) and Path(os.environ[key]) != expected:
                 raise Problem(f'{key} personalizado: esta edición usa las rutas estándar de Omarchy.')
+    if args.action == 'status':
+        status = installation_status(home)
+        print(json.dumps(status, ensure_ascii=False, indent=2))
+        return
+    if args.action == 'report':
+        print(write_report(home))
+        return
     base = Path('/usr/share/omarchy')
     if args.action not in ('backups', 'restore') and os.environ.get('OMARCHY_PATH', str(base)) != str(base):
         raise Problem('Esta edición requiere Omarchy en /usr/share/omarchy; no es para dev link.')
@@ -614,6 +703,10 @@ def main(argv=None):
             print('La prueba visual en la máquina de destino se realiza después de instalar.')
             return
     show(changes, args.diff)
+    if args.action == 'apply' and not changes:
+        identifier = transaction(home, [], 'verify', components=parts, record_empty=True)
+        print(f'Coincidencia comprobada para {args.only}. Registro: {identifier}. Validación visual pendiente.')
+        return
     if args.action not in ('apply', 'restore') or not changes:
         return
     if not args.yes:
@@ -635,7 +728,8 @@ def main(argv=None):
             shell_stop_attempted = True
         if live_dock:
             stop_live_dock(home)
-        identifier = transaction(home, changes, args.action, lock_checked=bool(live_shell))
+        identifier = transaction(home, changes, args.action, lock_checked=bool(live_shell),
+                                 components=parts if args.action == 'apply' else None)
     finally:
         try:
             if shell_stop_attempted:

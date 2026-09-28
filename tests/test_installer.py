@@ -505,5 +505,76 @@ class DockDownloadTest(unittest.TestCase):
                 m.dock_payload()
 
 
+class ProtocolTest(unittest.TestCase):
+    setUp = InstallerTest.setUp
+    write = InstallerTest.write
+    snapshot = InstallerTest.snapshot
+    plan = InstallerTest.plan
+
+    def test_legacy_source_is_unknown_without_mutation(self):
+        identifier = m.transaction(self.home, self.plan({'shell'}))
+        manifest = self.home / m.STATE / 'backups' / identifier / 'manifest.json'
+        record = json.loads(manifest.read_text())
+        del record['source']
+        manifest.write_text(json.dumps(record))
+        before = {str(p): p.read_bytes() for p in self.home.rglob('*') if p.is_file()}
+        status = m.installation_status(self.home)
+        self.assertEqual(status['baseline'], 'unknown')
+        self.assertEqual(status['drift'], [])
+        self.assertEqual(before, {str(p): p.read_bytes() for p in self.home.rglob('*') if p.is_file()})
+
+    def test_partial_provenance_does_not_claim_global_version(self):
+        source = {'revision': 'a' * 40, 'release': '0.2.0', 'dirty': False}
+        with patch.object(m, 'source_version', return_value=source):
+            m.transaction(self.home, self.plan({'shell'}), components={'shell'})
+        status = m.installation_status(self.home)
+        self.assertEqual(status['last_event']['source'], source)
+        self.assertEqual(status['last_event']['components'], ['shell'])
+        self.assertEqual(status['visual_validation'], 'not_recorded_here')
+
+    def test_drift_and_restore_are_detected(self):
+        identifier = m.transaction(self.home, self.plan({'shell'}), components={'shell'})
+        p = self.home / '.bashrc'
+        installed = p.read_bytes()
+        p.write_bytes(installed + b'\n# local change\n')
+        self.assertIn('.bashrc', m.installation_status(self.home)['drift'])
+        p.write_bytes(installed)
+        m.transaction(self.home, m.restore_plan(self.home, identifier), 'restore')
+        status = m.installation_status(self.home)
+        self.assertEqual(status['last_event']['operation'], 'restore')
+        self.assertEqual(status['drift'], [])
+
+    def test_verify_without_desktop_writes(self):
+        before = self.snapshot()
+        identifier = m.transaction(self.home, [], 'verify', components={'terminal'}, record_empty=True)
+        self.assertEqual(self.snapshot(), before)
+        status = m.installation_status(self.home)
+        self.assertEqual(status['last_event']['id'], identifier)
+        self.assertEqual(status['last_event']['files_changed'], 0)
+        self.assertEqual(status['last_event']['operation'], 'verify')
+
+    def test_noop_apply_records_verified_scope(self):
+        with patch.object(m, 'dependencies'), patch.object(m, 'plan', return_value=[]):
+            m.main(['apply', '--home', str(self.home), '--only', 'terminal'])
+        self.assertEqual(m.installation_status(self.home)['last_event']['components'], ['terminal'])
+
+    def test_report_is_private_and_pending(self):
+        path = m.write_report(self.home)
+        self.assertEqual(path.stat().st_mode & 0o777, 0o600)
+        self.assertEqual(path.parent.stat().st_mode & 0o777, 0o700)
+        self.assertTrue((path.parent / 'status.json').is_file())
+        self.assertIn('PENDIENTE', path.read_text())
+        self.assertNotIn(str(self.home), path.read_text())
+
+    def test_prepared_transaction_not_success(self):
+        identifier = m.transaction(self.home, self.plan({'shell'}))
+        manifest = self.home / m.STATE / 'backups' / identifier / 'manifest.json'
+        record = json.loads(manifest.read_text()); record['status'] = 'prepared'
+        manifest.write_text(json.dumps(record))
+        status = m.installation_status(self.home)
+        self.assertIsNone(status['last_event'])
+        self.assertEqual(status['other_transactions'][0]['status'], 'prepared')
+
+
 if __name__ == '__main__':
     unittest.main()

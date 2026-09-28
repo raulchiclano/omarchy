@@ -145,3 +145,11 @@ Las pruebas de archivos usan directorios temporales; no cambian el escritorio de
 ## Licencia
 
 MIT. Los paneles derivados de Omarchy conservan su licencia y atribución en [LICENSES/Omarchy-MIT.txt](LICENSES/Omarchy-MIT.txt). Los datos españoles de emojis conservan la licencia Unicode en [LICENSES/Unicode-3.0.txt](LICENSES/Unicode-3.0.txt). Consulta [THIRD_PARTY.md](THIRD_PARTY.md). Proyecto personal, sin afiliación con Omarchy, elementaryOS o Apple.
+
+## Actualizaciones entre equipos
+
+Para actualizar una instalación existente, sigue [el protocolo](docs/actualizaciones.md).
+Los agentes deben empezar por [AGENTS.md](AGENTS.md).
+Consulta [las notas de publicación](docs/releases/) y los [retornos autorizados](docs/retornos/).
+`./install.sh status --json` inspecciona el registro local; `./install.sh report` crea
+un informe privado que el agente debe completar. Descargar código no instala Lavanda.
