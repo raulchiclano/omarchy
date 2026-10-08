@@ -63,6 +63,59 @@ class InstallerTest(unittest.TestCase):
         with patch.object(m, 'check_compatibility'):
             return m.plan(self.home, parts or set(m.DEFAULT.split(',')), self.base)
 
+    def test_optional_components_roundtrip_preserve_private_data(self):
+        self.write('.config/transmission/settings.json', json.dumps({'rpc-password': 'private-test', 'download-dir': '/keep', 'show-notification-area-icon': False}))
+        self.write('.config/mimeapps.list', '[Default Applications]\ntext/html=browser.desktop\napplication/pdf=pdf.desktop\ntext/plain=old.desktop\n')
+        self.write('.gitconfig', '[user]\n    name = Test\n[core]\n    editor = old\n')
+        before = self.snapshot()
+        parts = {'shell', 'workspaces', 'shortcuts', 'editors', 'transmission'}
+        changes = self.plan(parts)
+        self.assertEqual(before, self.snapshot())
+        identifier = m.transaction(self.home, changes, components=parts)
+        self.assertEqual(self.plan(parts), [])
+        settings = json.loads((self.home / '.config/transmission/settings.json').read_text())
+        self.assertEqual(settings['rpc-password'], 'private-test')
+        self.assertEqual(settings['download-dir'], '/keep')
+        self.assertTrue(settings['show-notification-area-icon'])
+        mime = (self.home / '.config/mimeapps.list').read_text()
+        self.assertIn('text/html=browser.desktop', mime)
+        self.assertIn('application/pdf=pdf.desktop', mime)
+        self.assertIn('text/plain=com.microsoft.VSCode.desktop', mime)
+        self.assertIn('x-scheme-handler/magnet=transmission-qt.desktop', mime)
+        bindings = (self.home / '.config/hypr/bindings.lua').read_text()
+        for block in ['SHORTCUTS', 'TRANSMISSION', 'WORKSPACES']:
+            self.assertIn('BEGIN OMARCHY LAVANDA ' + block, bindings)
+        bash = (self.home / '.bashrc').read_text()
+        self.assertIn('BEGIN OMARCHY LAVANDA INIT', bash)
+        self.assertIn('export EDITOR=nano', bash)
+        subprocess.run(['bash', '-n', str(self.home / '.bashrc')], check=True)
+        editor = subprocess.check_output(['git', 'config', '--file', str(self.home / '.gitconfig'), 'core.editor'], text=True)
+        self.assertEqual(editor.strip(), 'nano')
+        self.assertTrue(os.access(self.home / '.local/bin/transmission-lavanda', os.X_OK))
+        m.transaction(self.home, m.restore_plan(self.home, identifier), 'restore')
+        self.assertEqual(self.snapshot(), before)
+
+    def test_transmission_launcher_portable_and_shell_syntax(self):
+        subprocess.run(['sh', '-n', str(m.PAYLOAD / 'transmission/launcher')], check=True)
+        self.assertNotIn('/home/raul', (m.PAYLOAD / 'transmission/launcher').read_text())
+        home = self.home / 'space and % name'
+        home.mkdir()
+        (home / '.config/hypr').mkdir(parents=True)
+        (home / '.config/hypr/hyprland.lua').write_text('require("hypr.bindings")')
+        files = m.extra_files(home, {'transmission'})
+        self.assertIn('space and %% name', files['.local/share/applications/transmission-qt.desktop'].decode())
+
+    def test_optional_dependency_selection_includes_nano(self):
+        self.assertEqual(m.requested_packages({'editors'}), ['nano'])
+        self.assertIn('gvfs-dnssd', m.requested_packages({'utilities'}))
+        self.assertEqual(m.requested_packages(set(m.DEFAULT.split(','))), [])
+
+    def test_ini_merge_refuses_ambiguous_settings(self):
+        with self.assertRaises(m.Problem):
+            m.merge_ini_keys('[Default Applications]\n[Default Applications]\n', 'Default Applications', {'text/plain': 'code'})
+        with self.assertRaises(m.Problem):
+            m.merge_ini_keys('[Default Applications]\ntext/plain=a\ntext/plain=b\n', 'Default Applications', {'text/plain': 'code'})
+
     def test_plan_is_read_only(self):
         before = self.snapshot()
         self.assertGreater(len(self.plan()), 40)

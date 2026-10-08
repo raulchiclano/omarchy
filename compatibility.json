@@ -170,7 +170,10 @@
     "shell/plugins/panels/bluetooth/Model.js": "b34f3259c6553f20ce37619d2f390cd3293303266f89f2a6df0b6810da384417",
     "shell/plugins/panels/bluetooth/Panel.qml": "f51654a00e3bfe5d6ccfd42bbd972d9436f70a27d152baa43ccdcbd8c66e1225",
     "shell/plugins/panels/bluetooth/manifest.json": "c15c51ab8a6cb82df8ebe3a5195b8d69c69d2ff9bbd00d748204d81a3ddc1d8a",
-    "shell/plugins/panels/clock/BarWidget.qml": "cfcdaeedc4ae5832b37271a84bb92ee762301022e2443a0f769992fa792acf28",
+    "shell/plugins/panels/clock/BarWidget.qml": [
+      "cfcdaeedc4ae5832b37271a84bb92ee762301022e2443a0f769992fa792acf28",
+      "29cd6b0c67dd97f18f9f5f9ee7e402f13d79d4ddc5e78dc08a838a3e03565a51"
+    ],
     "shell/plugins/panels/clock/Model.js": "4d1182e294e46779452e3cb9d15d1fbbafe441883c8179679840a1108b55248a",
     "shell/plugins/panels/clock/Panel.qml": "396d98c9696a64977166be99d3b70c102ca20ac30f41e073fe1d168fde61de75",
     "shell/plugins/panels/clock/manifest.json": "81d320cae7a86c14f961cf3586dbfeecbe689cd002e0a37a502a01c6da781d26",

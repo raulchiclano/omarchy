@@ -8,6 +8,12 @@ Incluye la configuración que uso y un instalador que **enseña los cambios, gua
 
 **Para el portátil:** [guía paso a paso](docs/portatil.md), con los últimos paneles, atajos y el fondo personal por separado.
 
+## Actualizar el portátil que ya tiene Lavanda
+
+Sigue [el flujo de actualización](docs/actualizar-portatil.md). La versión 0.3.0
+añade atajos, editores y Transmission como componentes explícitos; un `git pull`
+solo descarga el código, no cambia el escritorio. [Notas 0.3.0](docs/releases/0.3.0.md).
+
 ## Instalar en otro Omarchy
 
 Desde una terminal de tu usuario habitual:
@@ -48,6 +54,10 @@ Esto último es opcional y aplica también los demás ajustes del tema Tokyo Nig
 | `shell` | Prompt Starship con iconos, carpeta y estado Git; ble.sh si está instalado; historial Ctrl+R con separación, resaltado y números atenuados. |
 | `dock` | Dock inferior lavanda, iconos de 32 px, ampliación sutil hasta unos 37 px, ocultación inteligente e inicio automático; usa una revisión probada de [mi fork](https://github.com/raulchiclano/hyprland-dock). |
 | `icons` | Adwaita al elegir Tokyo Night, mediante una capa de configuración del tema. |
+| `shortcuts` | **Opcional:** Super+Shift+W/C/S para WhatsApp, VS Code y capturas. |
+| `editors` | **Opcional:** Nano en terminal/Git y VS Code para texto/código. Requiere Nano y `code`. |
+| `transmission` | **Opcional:** Transmission Qt flotante, estilo Lavanda y bandeja. Cerrar la app antes de aplicar. |
+| `utilities` | **Opcional:** comprueba GNOME Clocks, age y gvfs-dnssd; sin cuentas ni secretos. |
 | `workspaces` | **Opcional:** Ctrl+Super+←/→ para cambiar al escritorio contiguo. Reemplaza los atajos de grupo de esas teclas. |
 
 El selector de archivos `ff` y los alias originales de Omarchy se conservan. El panel de agentes usa los datos que ya existan en cada equipo; no transporta cuentas ni inicia sesión.
@@ -76,6 +86,18 @@ La instalación normal incluye `desktop,terminal,shell,icons,dock`. El dock ya q
 En una instalación nueva fija Archivos (Nautilus), Foot, Zen, VS Code, WhatsApp, ChatGPT y Spotify. El botón de aplicaciones aparece antes de los favoritos y mantiene su tamaño al pasar el ratón. Estas aplicaciones deben estar instaladas en cada equipo; sus perfiles y cuentas no se copian. Si ya tienes una lista de aplicaciones en el dock, la conserva. Aplica el aspecto y comportamiento de Lavanda y mantiene las opciones desconocidas.
 
 El código procede de una revisión exacta del fork, registrada en `dock.lock.json`, y se comprueba con SHA-256 por archivo. `doctor`, `plan` y `apply` necesitan Internet cuando incluyen el dock; la descarga se mantiene en memoria y no se ejecuta el instalador remoto. `restore` funciona sin Internet. [Funcionamiento y mantenimiento del dock](docs/dock.md).
+
+## Dependencias nuevas (selección explícita)
+
+```bash
+./install.sh packages --only editors,transmission,utilities
+./install.sh install-packages --only editors,transmission,utilities
+```
+
+El primer comando informa; el segundo instala paquetes ausentes mediante Omarchy
+y requiere una terminal interactiva. Conserva tu variante de VS Code: debe estar
+disponible como `code`. Nano se incluye como dependencia, no se da por instalado.
+Ni doctor ni plan ni apply instalan paquetes. Consulta las notas de la release.
 
 ## Dependencias
 

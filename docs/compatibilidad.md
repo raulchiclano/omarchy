@@ -56,3 +56,12 @@ Un cambio de tema conserva los plugins de usuario. Los paneles personalizados ma
 2. No sustituyas los archivos de Omarchy por los de otra máquina.
 3. Puedes instalar componentes independientes, por ejemplo `./install.sh apply --only terminal`.
 4. Para adaptar el escritorio, compara la nueva API con los imports y servicios de `payload/plugins`, prueba en una sesión de laboratorio y registra la nueva base validada.
+
+## Revisión 0.3.0
+
+Se revisó la variante del reloj incluida en Try Omarchy 4.0.3-7: añade únicamente
+`Date.timeZoneUpdated()` en refresh(). Se admite su huella junto a la original.
+No cambia la API consumida por Lavanda ni se modifica el plugin personalizado.
+Los componentes shortcuts y transmission usan la misma comprobación conservadora
+de base de escritorio. editors/utilities no requieren esa base. La versión nativa
+del portátil debe volver a pasar doctor; no se presupone idéntica a la VM.

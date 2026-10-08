@@ -1,0 +1,4 @@
+#!/bin/sh
+export GTK_THEME=Adwaita:dark
+export QT_QPA_PLATFORMTHEME=gtk3
+exec /usr/bin/transmission-qt "$@" --- -style Fusion -stylesheet "$HOME/.config/transmission-lavanda/style.qss"

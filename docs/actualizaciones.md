@@ -52,6 +52,11 @@ se hubiera instalado ese commit ni que se hayan probado visualmente los paneles.
 
 ## 3. Plan concreto
 
+Desde 0.3.0, revisar también [el flujo del portátil](actualizar-portatil.md).
+Ofrecer shortcuts/editors/transmission de forma explícita y utilities por separado.
+No omitir Nano de las dependencias ni añadir componentes sin explicar el alcance.
+
+
 Leer todas las notas de docs/releases entre cada origen conocido y destino.
 Si el origen no se conoce, revisar todo el historial disponible y el diff completo.
 No omitir cambios porque se hayan saltado versiones. Conservar el alcance previo;

@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent
 PAYLOAD = ROOT / 'payload'
 STATE = '.local/state/omarchy-lavanda'
 CONFIG = '.config/omarchy-lavanda'
-COMPONENTS = {'desktop', 'terminal', 'shell', 'icons', 'workspaces', 'dock'}
+COMPONENTS = {'desktop', 'terminal', 'shell', 'icons', 'workspaces', 'dock', 'shortcuts', 'editors', 'transmission', 'utilities'}
 DEFAULT = 'desktop,terminal,shell,icons,dock'
 BLESH_PATH = Path('/usr/share/blesh/ble.sh')
 SERVICES = ('osd', 'notifications', 'menu', 'clipboard', 'emojis', 'lock')
@@ -195,10 +195,93 @@ fi'''
 [[ ! ${BLE_VERSION-} ]] || ble-attach''')
 
 
+# Optional components: selecting them is explicit; the original default stays stable.
+PACKAGE_GROUPS = {
+    'editors': ['nano'],
+    'shortcuts': [],
+    'transmission': ['transmission-qt'],
+    'utilities': ['gnome-clocks', 'age', 'gvfs-dnssd'],
+}
+
+def requested_packages(parts):
+    return sorted({pkg for part in parts for pkg in PACKAGE_GROUPS.get(part, [])})
+
+
+def merge_ini_keys(text, section, settings):
+    """Preserve unrelated lines/comments and reject ambiguous duplicate sections/keys."""
+    lines = text.splitlines(keepends=True)
+    headers = [(i, re.fullmatch(r'\s*\[([^]]+)\]\s*', line.strip())) for i, line in enumerate(lines)]
+    starts = [i for i, match in headers if match and match[1] == section]
+    if len(starts) > 1:
+        raise Problem(f'Sección duplicada: {section}')
+    if not starts:
+        return text.rstrip() + '\n\n[' + section + ']\n' + ''.join(f'{k}={v}\n' for k, v in settings.items())
+    start = starts[0]
+    end = next((i for i, match in headers if match and i > start), len(lines))
+    for key, value in settings.items():
+        matches = [i for i in range(start + 1, end) if re.match(r'\s*' + re.escape(key) + r'\s*=', lines[i])]
+        if len(matches) > 1:
+            raise Problem(f'Clave duplicada: {section}.{key}')
+        if matches:
+            lines[matches[0]] = f'{key}={value}\n'
+        else:
+            if end and not lines[end-1].endswith('\n'):
+                lines[end-1] += '\n'
+            lines.insert(end, f'{key}={value}\n')
+            end += 1
+    return ''.join(lines)
+
+
+def extra_files(home, parts):
+    files = {}
+    def put(name, text):
+        files[name] = text.encode() if isinstance(text, str) else text
+    if parts & {'shortcuts', 'transmission'}:
+        main = read(home, '.config/hypr/hyprland.lua').decode()
+        if 'require("hypr.bindings")' not in main:
+            raise Problem('Hyprland debe cargar hypr.bindings.')
+        binding = read(home, '.config/hypr/bindings.lua').decode()
+        if 'shortcuts' in parts:
+            body = (PAYLOAD / 'shortcuts.lua').read_text()
+            binding = managed(binding, 'SHORTCUTS', body, '--')
+        if 'transmission' in parts:
+            binding = managed(binding, 'TRANSMISSION', 'o.window("^transmission-qt$", { float = true })', '--')
+        put('.config/hypr/bindings.lua', binding)
+    if 'editors' in parts:
+        put('.bashrc', managed(read(home, '.bashrc').decode(), 'EDITORS',
+            'export EDITOR=nano\nexport VISUAL=nano\nexport SUDO_EDITOR=nano\nn() { command nano "$@"; }'))
+        put('.config/environment.d/90-editors.conf', 'EDITOR=nano\nVISUAL=nano\nSUDO_EDITOR=nano\n')
+        put('.local/state/omarchy/defaults/editor', 'code\n')
+        # A final core section is supported by Git and preserves unrelated config/includes.
+        gitpath = '.gitconfig' if (home / '.gitconfig').exists() else '.config/git/config'
+        put(gitpath, managed(read(home, gitpath).decode(), 'EDITOR', '[core]\n    editor = nano'))
+        types = (PAYLOAD / 'editors-mimetypes.txt').read_text().splitlines()
+        put('.config/mimeapps.list', merge_ini_keys(read(home, '.config/mimeapps.list').decode(),
+            'Default Applications', {key: 'com.microsoft.VSCode.desktop' for key in types}))
+    if 'transmission' in parts:
+        put('.local/bin/transmission-lavanda', (PAYLOAD / 'transmission/launcher').read_bytes())
+        put('.config/transmission-lavanda/style.qss', (PAYLOAD / 'transmission/style.qss').read_bytes())
+        # Desktop Entry Exec quoting: escape reserved characters, including percent field codes.
+        launch = str(home / '.local/bin/transmission-lavanda')
+        launch = launch.replace('\\', '\\\\').replace('"', '\\"').replace('`', '\\`').replace('$', '\\$').replace('%', '%%')
+        desktop = (PAYLOAD / 'transmission/transmission-qt.desktop').read_text().replace('@LAUNCHER@', launch)
+        put('.local/share/applications/transmission-qt.desktop', desktop)
+        # Do not copy torrents, credentials, directories, peers or session state.
+        settings = json.loads(read(home, '.config/transmission/settings.json', b'{}'))
+        if not isinstance(settings, dict):
+            raise Problem('Transmission settings.json debe ser un objeto.')
+        settings.update({'show-notification-area-icon': True, 'start-minimized': False})
+        put('.config/transmission/settings.json', json_bytes(settings))
+        put('.config/mimeapps.list', merge_ini_keys(files.get('.config/mimeapps.list',
+            read(home, '.config/mimeapps.list')).decode(), 'Default Applications',
+            {'application/x-bittorrent': 'transmission-qt.desktop', 'x-scheme-handler/magnet': 'transmission-qt.desktop'}))
+    return files
+
+
 def check_compatibility(parts, base):
     meta = json.loads((ROOT / 'compatibility.json').read_text())
     groups = set()
-    if parts & {'desktop', 'workspaces'}:
+    if parts & {'desktop', 'workspaces', 'shortcuts', 'transmission'}:
         groups.add('desktop')
     if 'shell' in parts:
         groups.add('shell')
@@ -324,13 +407,22 @@ def plan(home, parts, base):
         name = '.config/hypr/bindings.lua'
         put(name, managed(read(home, name).decode(), 'WORKSPACES',
                          'dofile(os.getenv("HOME") .. "/.config/omarchy-lavanda/workspace-bindings.lua")', '--'))
+    # Merge editors after shell so that selecting both preserves both managed blocks.
+    extras = extra_files(home, parts)
+    if 'shell' in parts and 'editors' in parts:
+        extras['.bashrc'] = managed(files['.bashrc'].decode(), 'EDITORS',
+            'export EDITOR=nano\nexport VISUAL=nano\nexport SUDO_EDITOR=nano\nn() { command nano "$@"; }').encode()
+    if 'workspaces' in parts and parts & {'shortcuts', 'transmission'}:
+        extras['.config/hypr/bindings.lua'] = managed(extras['.config/hypr/bindings.lua'].decode(), 'WORKSPACES',
+            'dofile(os.getenv("HOME") .. "/.config/omarchy-lavanda/workspace-bindings.lua")', '--').encode()
+    files.update(extras)
     # Snapshot both content and mode so the apply step can detect intervening edits.
     result = []
     for name, after in files.items():
         before = read(home, name, None)
         p = target(home, name)
         before_mode = stat.S_IMODE(p.stat().st_mode) if p.exists() else None
-        mode = 0o755 if name == '.local/bin/hyprland-dock' else (before_mode if before_mode is not None else 0o644)
+        mode = 0o755 if name in ('.local/bin/hyprland-dock', '.local/bin/transmission-lavanda') else (before_mode if before_mode is not None else 0o644)
         if before != after or before_mode != mode:
             result.append({'path': name, 'before': before, 'after': after, 'mode': mode, 'before_mode': before_mode})
     result.sort(key=lambda e: e['path'] == '.config/omarchy/shell.json')
@@ -565,9 +657,16 @@ def dependencies(parts):
         required.update(['foot', 'fc-match'])
     if 'shell' in parts:
         required.update(['bash', 'starship', 'fzf', 'sed'])
+    for part, commands in {'editors': ['nano', 'code', 'git'], 'shortcuts': ['code', 'hyprctl'],
+                           'transmission': ['transmission-qt', 'hyprctl'],
+                           'utilities': ['gnome-clocks', 'age']}.items():
+        if part in parts:
+            required.update(commands)
     missing = [name for name in sorted(required) if not shutil.which(name)]
     if missing:
-        raise Problem('Faltan dependencias: ' + ', '.join(missing) + '. Consulta README.md.')
+        raise Problem('Faltan dependencias: ' + ', '.join(missing) + '. Revisa ./install.sh packages --only ' + ','.join(sorted(parts)) + ' y README.md.')
+    if 'utilities' in parts and not Path('/usr/lib/gvfsd-dnssd').is_file():
+        raise Problem('Falta gvfs-dnssd; revisa install-packages --only utilities.')
     if 'dock' in parts:
         version = subprocess.check_output(['qs', '--version'], text=True)
         match = re.search(r'(\d+)\.(\d+)\.(\d+)', version)
@@ -646,9 +745,9 @@ def install_blesh(home):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Omarchy Lavanda — revisar, instalar y restaurar sin sudo.')
-    parser.add_argument('action', nargs='?', choices=['plan', 'apply', 'doctor', 'backups', 'restore', 'install-blesh', 'status', 'report'], default='plan')
+    parser.add_argument('action', nargs='?', choices=['plan', 'apply', 'doctor', 'backups', 'restore', 'install-blesh', 'status', 'report', 'packages', 'install-packages'], default='plan')
     parser.add_argument('backup', nargs='?', help='Identificador para restore')
-    parser.add_argument('--only', default=DEFAULT, help='desktop,terminal,shell,icons,dock,workspaces (este último opcional)')
+    parser.add_argument('--only', default=DEFAULT, help='Componentes: ' + ','.join(sorted(COMPONENTS)))
     parser.add_argument('--json', action='store_true', help='Estado estructurado con status')
     parser.add_argument('--diff', action='store_true', help='Mostrar el contenido de cada cambio')
     parser.add_argument('--yes', action='store_true', help='Aplicar sin la pregunta final')
@@ -675,6 +774,20 @@ def main(argv=None):
     base = Path('/usr/share/omarchy')
     if args.action not in ('backups', 'restore') and os.environ.get('OMARCHY_PATH', str(base)) != str(base):
         raise Problem('Esta edición requiere Omarchy en /usr/share/omarchy; no es para dev link.')
+    if args.action in ('packages', 'install-packages'):
+        parts = set(args.only.split(','))
+        if not parts or not parts <= COMPONENTS:
+            raise Problem('Componentes no válidos.')
+        packages = requested_packages(parts)
+        print('Paquetes opcionales seleccionados: ' + (', '.join(packages) or '(ninguno; ver README para la base)'))
+        if args.action == 'packages' or not packages:
+            return
+        if home != Path.home() or not sys.stdin.isatty():
+            raise Problem('Instala dependencias en una terminal interactiva del equipo destino, sin --home.')
+        missing = [pkg for pkg in packages if subprocess.run(['pacman', '-Q', pkg], capture_output=True).returncode != 0]
+        if missing:
+            subprocess.run(['omarchy', 'pkg', 'add', *missing], check=True)
+        return
     if args.action == 'install-blesh':
         install_blesh(home)
         return
@@ -715,6 +828,12 @@ def main(argv=None):
         if input('¿Aplicar estos cambios y guardar una copia? [s/N] ').strip().lower() not in ('s', 'si', 'sí'):
             print('Cancelado. No se ha escrito nada.')
             return
+    if home == Path.home() and any(x['path'] == '.config/transmission/settings.json' for x in changes):
+        running = subprocess.run(['pgrep', '-u', str(os.getuid()), '-x', 'transmission-qt'], capture_output=True)
+        if running.returncode not in (0, 1):
+            raise Problem('No se pudo comprobar si Transmission está cerrado.')
+        if running.returncode == 0:
+            raise Problem('Cierra Transmission desde Salir (también la bandeja) antes de apply/restore; no se ha escrito nada.')
     dock_changed = any(x['path'].startswith(('.local/share/hyprland-dock/', '.config/hyprland-dock/'))
                        or x['path'] == '.local/bin/hyprland-dock' for x in changes)
     live_dock = dock_changed and home == Path.home() and os.environ.get('HYPRLAND_INSTANCE_SIGNATURE')

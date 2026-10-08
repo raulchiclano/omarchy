@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=Transmission (Qt)
+Comment=Cliente BitTorrent con aspecto Lavanda
+Exec="@LAUNCHER@" %U
+Icon=transmission-qt
+Terminal=false
+Type=Application
+MimeType=application/x-bittorrent;x-scheme-handler/magnet;
+Categories=Network;FileTransfer;P2P;Qt;
+Actions=Minimize;
+
+[Desktop Action Minimize]
+Name=Iniciar minimizado en la bandeja
+Exec="@LAUNCHER@" --minimized

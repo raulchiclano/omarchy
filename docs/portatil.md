@@ -1,5 +1,9 @@
 # Llevar Lavanda al portátil
 
+**Si ya lo instalaste:** usa [Actualizar el portátil](actualizar-portatil.md).
+Las instrucciones siguientes describen la instalación original; la selección
+por defecto no incluye las novedades opcionales de 0.3.0.
+
 Esta guía reproduce la personalización aprobada el 25 de septiembre de 2026.
 El instalador lleva el aspecto y comportamiento de escritorio; las aplicaciones,
 cuentas y ajustes de hardware siguen siendo propios de cada equipo.
