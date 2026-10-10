@@ -110,11 +110,13 @@ ajustes propios y siguiente paso. No marcar validado por pasar pruebas unitarias
 En caso de fallo que impida ejecutar report, escribir manualmente el informe local.
 
 Para comunicar de vuelta, preparar un resumen sin rutas personales, nombres,
-cuentas, direcciones de red ni logs íntegros. Mostrarlo y publicar solo si Raúl lo
-pide/autoriza. Guardarlo en docs/retornos/ con alias del equipo y fecha; si no hay
-acceso de escritura, entregar el Markdown para que Raúl lo lleve al otro agente.
-El agente de desarrollo consulta esos retornos antes de la próxima publicación.
-No prometer sincronización automática de conversaciones ni de informes locales.
+cuentas, direcciones de red ni logs íntegros. La autorización continua de Raúl del
+2026-10-10 permite publicar estos resúmenes depurados en `docs/retornos/` al cerrar
+cada jornada o tarea útil, sin pedirle que solicite o traslade el informe. Seguir
+las reglas de [retornos](retornos/README.md). Si no hay acceso de escritura o falla
+el push, conservar el Markdown local y comunicar que el otro agente aún no lo ve.
+Al iniciar trabajo, cada agente consulta GitHub y los retornos recientes. Las
+conversaciones y los informes privados no se sincronizan automáticamente.
 
 ## 6. Publicación desde desarrollo
 
