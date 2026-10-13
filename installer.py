@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent
 PAYLOAD = ROOT / 'payload'
 STATE = '.local/state/omarchy-lavanda'
 CONFIG = '.config/omarchy-lavanda'
-COMPONENTS = {'desktop', 'terminal', 'shell', 'icons', 'workspaces', 'dock', 'shortcuts', 'editors', 'transmission', 'utilities'}
+COMPONENTS = {'desktop', 'terminal', 'shell', 'icons', 'workspaces', 'dock', 'shortcuts', 'editors', 'transmission', 'utilities', 'nautilus'}
 DEFAULT = 'desktop,terminal,shell,icons,dock'
 BLESH_PATH = Path('/usr/share/blesh/ble.sh')
 SERVICES = ('osd', 'notifications', 'menu', 'clipboard', 'emojis', 'lock')
@@ -197,6 +197,7 @@ fi'''
 
 # Optional components: selecting them is explicit; the original default stays stable.
 PACKAGE_GROUPS = {
+    'nautilus': ['nautilus-python'],
     'editors': ['nano'],
     'shortcuts': [],
     'transmission': ['transmission-qt'],
@@ -236,6 +237,9 @@ def extra_files(home, parts):
     files = {}
     def put(name, text):
         files[name] = text.encode() if isinstance(text, str) else text
+    if 'nautilus' in parts:
+        put('.local/share/nautilus-python/extensions/lavanda_backspace.py',
+            (PAYLOAD / 'nautilus/lavanda_backspace.py').read_bytes())
     if parts & {'shortcuts', 'transmission'}:
         main = read(home, '.config/hypr/hyprland.lua').decode()
         if 'require("hypr.bindings")' not in main:
@@ -649,6 +653,8 @@ def restore_plan(home, identifier):
 
 def dependencies(parts):
     required = set()
+    if 'nautilus' in parts:
+        required.update(['nautilus', 'python3', 'pacman'])
     if 'dock' in parts:
         required.update(['qs', 'hyprctl', 'bash', 'omarchy'])
     if 'desktop' in parts:
@@ -665,6 +671,17 @@ def dependencies(parts):
     missing = [name for name in sorted(required) if not shutil.which(name)]
     if missing:
         raise Problem('Faltan dependencias: ' + ', '.join(missing) + '. Revisa ./install.sh packages --only ' + ','.join(sorted(parts)) + ' y README.md.')
+    if 'nautilus' in parts:
+        version = subprocess.check_output(['pacman', '-Q', 'nautilus'], text=True)
+        if not re.search(r'\b50\.', version):
+            raise Problem('Retroceso se ha validado con Nautilus 50.x; revisar otras versiones antes de aplicar.')
+        if not Path('/usr/lib/nautilus/extensions-4/libnautilus-python.so').is_file():
+            raise Problem('Falta nautilus-python: install-packages --only nautilus.')
+        probe = "import gi; gi.require_version('Gtk', '4.0'); "
+        probe += "from gi.repository import Gtk; "
+        probe += "repo=gi.Repository.get_default(); assert any(v in repo.enumerate_versions('Nautilus') for v in ('4.0', '4.1'))"
+        if subprocess.run(['python3', '-c', probe], capture_output=True).returncode:
+            raise Problem('Falta la API Python GTK4/Nautilus 4.x; revisar nautilus-python y python-gobject.')
     if 'utilities' in parts and not Path('/usr/lib/gvfsd-dnssd').is_file():
         raise Problem('Falta gvfs-dnssd; revisa install-packages --only utilities.')
     if 'dock' in parts:
@@ -866,6 +883,8 @@ def main(argv=None):
             print('Sin sesión gráfica activa: los paneles se cargarán al iniciar sesión.')
     else:
         print('Abre una terminal nueva para probar Bash/Foot si los has instalado.')
+    if any(x['path'].endswith('/lavanda_backspace.py') for x in changes):
+        print('Nautilus: cerrar y volver a abrir completamente cuando no haya copias en curso; no se reinicia automáticamente.')
     if dock_changed:
         if args.action == 'restore':
             print('Archivos del dock restaurados al estado de la copia.')

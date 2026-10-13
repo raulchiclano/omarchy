@@ -10,6 +10,10 @@ Incluye la configuración que uso y un instalador que **enseña los cambios, gua
 
 ## Actualizar el portátil que ya tiene Lavanda
 
+**0.3.1:** [Retroceso en Nautilus](docs/releases/0.3.1.md). En un portátil con 0.3.0,
+seleccionar solo `--only nautilus` para añadirlo sin tocar los demás ajustes.
+
+
 Sigue [el flujo de actualización](docs/actualizar-portatil.md). La versión 0.3.0
 añade atajos, editores y Transmission como componentes explícitos; un `git pull`
 solo descarga el código, no cambia el escritorio. [Notas 0.3.0](docs/releases/0.3.0.md).
@@ -54,6 +58,7 @@ Esto último es opcional y aplica también los demás ajustes del tema Tokyo Nig
 | `shell` | Prompt Starship con iconos, carpeta y estado Git; ble.sh si está instalado; historial Ctrl+R con separación, resaltado y números atenuados. |
 | `dock` | Dock inferior lavanda, iconos de 32 px, ampliación sutil hasta unos 37 px, ocultación inteligente e inicio automático; usa una revisión probada de [mi fork](https://github.com/raulchiclano/hyprland-dock). |
 | `icons` | Adwaita al elegir Tokyo Night, mediante una capa de configuración del tema. |
+| `nautilus` | **Opcional:** Retroceso para volver atrás en Archivos sin afectar la edición de texto; requiere nautilus-python y Nautilus 50.x. |
 | `shortcuts` | **Opcional:** Super+Shift+W/C/S para WhatsApp, VS Code y capturas. |
 | `editors` | **Opcional:** Nano en terminal/Git y VS Code para texto/código. Requiere Nano y `code`. |
 | `transmission` | **Opcional:** Transmission Qt flotante, estilo Lavanda y bandeja. Cerrar la app antes de aplicar. |

@@ -1,5 +1,13 @@
 # Actualizar Lavanda en el portátil
 
+## Novedad 0.3.1: Retroceso en Nautilus
+
+Consultar [notas 0.3.1](releases/0.3.1.md). Proponer el componente `nautilus`
+para añadir Retroceso. Si 0.3.0 ya está instalada, aplicar solo ese componente:
+no reaplicar editors, pues sigue pendiente incorporar su corrección del portátil.
+Conservar la instalación parcial registrada y validar después con el usuario.
+
+
 ## Para Raúl
 
 Abre el chat/agente que tenga acceso local al portátil y pega:

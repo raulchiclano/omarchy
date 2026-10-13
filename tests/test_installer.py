@@ -116,6 +116,28 @@ class InstallerTest(unittest.TestCase):
         with self.assertRaises(m.Problem):
             m.merge_ini_keys('[Default Applications]\ntext/plain=a\ntext/plain=b\n', 'Default Applications', {'text/plain': 'code'})
 
+    def test_nautilus_extension_roundtrip_keeps_other_extensions(self):
+        self.write('.local/share/nautilus-python/extensions/other.py', '# Keep me\n')
+        before = self.snapshot()
+        parts = {'nautilus'}
+        changes = self.plan(parts)
+        self.assertEqual(len(changes), 1)
+        self.assertEqual(before, self.snapshot())
+        identifier = m.transaction(self.home, changes, components=parts)
+        self.assertEqual(self.plan(parts), [])
+        extension = self.home / '.local/share/nautilus-python/extensions/lavanda_backspace.py'
+        compile(extension.read_text(), str(extension), 'exec')
+        self.assertEqual(m.requested_packages(parts), ['nautilus-python'])
+        m.transaction(self.home, m.restore_plan(self.home, identifier), 'restore')
+        self.assertEqual(before, self.snapshot())
+
+    def test_nautilus_existing_extension_is_restored(self):
+        name = '.local/share/nautilus-python/extensions/lavanda_backspace.py'
+        self.write(name, '# Previous user version\n')
+        identifier = m.transaction(self.home, self.plan({'nautilus'}), components={'nautilus'})
+        m.transaction(self.home, m.restore_plan(self.home, identifier), 'restore')
+        self.assertEqual((self.home / name).read_text(), '# Previous user version\n')
+
     def test_plan_is_read_only(self):
         before = self.snapshot()
         self.assertGreater(len(self.plan()), 40)
