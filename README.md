@@ -180,3 +180,19 @@ Los agentes deben empezar por [AGENTS.md](AGENTS.md).
 Consulta [las notas de publicación](docs/releases/) y los [retornos autorizados](docs/retornos/).
 `./install.sh status --json` inspecciona el registro local; `./install.sh report` crea
 un informe privado que el agente debe completar. Descargar código no instala Lavanda.
+
+### Loupe: visor de imágenes opcional
+
+El componente `loupe` instala el visor GTK4 de GNOME, lo asocia a los formatos
+que declara Loupe 50 y abre sus ventanas flotantes y centradas. No cambia las
+asociaciones de vídeo ni instala Showtime. Disponible en la rama principal;
+no forma parte de la etiqueta publicada 0.3.1.
+
+```bash
+./install.sh install-packages --only loupe
+./install.sh doctor --only loupe
+./install.sh plan --only loupe --diff
+./install.sh apply --only loupe
+```
+
+La aplicación conserva una copia de los ajustes para `restore`.

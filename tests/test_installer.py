@@ -50,6 +50,16 @@ class InstallerTest(unittest.TestCase):
             'bar': {'height': 42, 'layout': {'left': [{'id': 'someone.widget', 'option': 7}], 'center': [], 'right': []}}
         }))
 
+    def test_loupe_preserves_video_and_is_idempotent(self):
+        self.write('.config/mimeapps.list', '[Default Applications]\nvideo/mp4=mpv.desktop\nimage/png=old.desktop\n')
+        files = m.extra_files(self.home, {'loupe'})
+        mime = files['.config/mimeapps.list'].decode()
+        self.assertIn('video/mp4=mpv.desktop', mime)
+        self.assertIn('image/png=org.gnome.Loupe.desktop', mime)
+        for name, content in files.items():
+            self.write(name, content.decode())
+        self.assertEqual(files, m.extra_files(self.home, {'loupe'}))
+
     def write(self, name, content):
         p = self.home / name
         p.parent.mkdir(parents=True, exist_ok=True)

@@ -24,7 +24,7 @@ ROOT = Path(__file__).resolve().parent
 PAYLOAD = ROOT / 'payload'
 STATE = '.local/state/omarchy-lavanda'
 CONFIG = '.config/omarchy-lavanda'
-COMPONENTS = {'desktop', 'terminal', 'shell', 'icons', 'workspaces', 'dock', 'shortcuts', 'editors', 'transmission', 'utilities', 'nautilus'}
+COMPONENTS = {'desktop', 'terminal', 'shell', 'icons', 'workspaces', 'dock', 'shortcuts', 'editors', 'transmission', 'utilities', 'nautilus', 'loupe'}
 DEFAULT = 'desktop,terminal,shell,icons,dock'
 BLESH_PATH = Path('/usr/share/blesh/ble.sh')
 SERVICES = ('osd', 'notifications', 'menu', 'clipboard', 'emojis', 'lock')
@@ -197,6 +197,7 @@ fi'''
 
 # Optional components: selecting them is explicit; the original default stays stable.
 PACKAGE_GROUPS = {
+    'loupe': ['loupe'],
     'nautilus': ['nautilus-python'],
     'editors': ['nano'],
     'shortcuts': [],
@@ -240,7 +241,7 @@ def extra_files(home, parts):
     if 'nautilus' in parts:
         put('.local/share/nautilus-python/extensions/lavanda_backspace.py',
             (PAYLOAD / 'nautilus/lavanda_backspace.py').read_bytes())
-    if parts & {'shortcuts', 'transmission'}:
+    if parts & {'shortcuts', 'transmission', 'loupe'}:
         main = read(home, '.config/hypr/hyprland.lua').decode()
         if 'require("hypr.bindings")' not in main:
             raise Problem('Hyprland debe cargar hypr.bindings.')
@@ -250,6 +251,8 @@ def extra_files(home, parts):
             binding = managed(binding, 'SHORTCUTS', body, '--')
         if 'transmission' in parts:
             binding = managed(binding, 'TRANSMISSION', 'o.window("^transmission-qt$", { float = true })', '--')
+        if 'loupe' in parts:
+            binding = managed(binding, 'LOUPE', 'o.window("^org[.]gnome[.]Loupe$", { float = true, center = true })', '--')
         put('.config/hypr/bindings.lua', binding)
     if 'editors' in parts:
         put('.bashrc', managed(read(home, '.bashrc').decode(), 'EDITORS',
@@ -279,13 +282,18 @@ def extra_files(home, parts):
         put('.config/mimeapps.list', merge_ini_keys(files.get('.config/mimeapps.list',
             read(home, '.config/mimeapps.list')).decode(), 'Default Applications',
             {'application/x-bittorrent': 'transmission-qt.desktop', 'x-scheme-handler/magnet': 'transmission-qt.desktop'}))
+    if 'loupe' in parts:
+        types = (PAYLOAD / 'loupe-mimetypes.txt').read_text().splitlines()
+        put('.config/mimeapps.list', merge_ini_keys(files.get('.config/mimeapps.list',
+            read(home, '.config/mimeapps.list')).decode(), 'Default Applications',
+            {key: 'org.gnome.Loupe.desktop' for key in types}))
     return files
 
 
 def check_compatibility(parts, base):
     meta = json.loads((ROOT / 'compatibility.json').read_text())
     groups = set()
-    if parts & {'desktop', 'workspaces', 'shortcuts', 'transmission'}:
+    if parts & {'desktop', 'workspaces', 'shortcuts', 'transmission', 'loupe'}:
         groups.add('desktop')
     if 'shell' in parts:
         groups.add('shell')
@@ -416,7 +424,7 @@ def plan(home, parts, base):
     if 'shell' in parts and 'editors' in parts:
         extras['.bashrc'] = managed(files['.bashrc'].decode(), 'EDITORS',
             'export EDITOR=nano\nexport VISUAL=nano\nexport SUDO_EDITOR=nano\nn() { command nano "$@"; }').encode()
-    if 'workspaces' in parts and parts & {'shortcuts', 'transmission'}:
+    if 'workspaces' in parts and parts & {'shortcuts', 'transmission', 'loupe'}:
         extras['.config/hypr/bindings.lua'] = managed(extras['.config/hypr/bindings.lua'].decode(), 'WORKSPACES',
             'dofile(os.getenv("HOME") .. "/.config/omarchy-lavanda/workspace-bindings.lua")', '--').encode()
     files.update(extras)
@@ -665,6 +673,7 @@ def dependencies(parts):
         required.update(['bash', 'starship', 'fzf', 'sed'])
     for part, commands in {'editors': ['nano', 'code', 'git'], 'shortcuts': ['code', 'hyprctl'],
                            'transmission': ['transmission-qt', 'hyprctl'],
+                           'loupe': ['loupe', 'hyprctl'],
                            'utilities': ['gnome-clocks', 'age']}.items():
         if part in parts:
             required.update(commands)
