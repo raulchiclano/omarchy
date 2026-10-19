@@ -73,3 +73,19 @@
   ni dar por probado todavía ese último trayecto. Las indicaciones pendientes
   dentro de la nota de prueba son históricas y deben interpretarse con este retorno.
 - Próximo paso técnico: continuidad del asistente literario entre equipos.
+
+## Quinto hito: conexión editorial y reglas aprobadas
+
+- Raúl conectó ChatGPT web desde Zen únicamente al repositorio privado de la
+  bóveda. Comunicó dos lecturas correctas de la nota de prueba: la inicial y una
+  nueva frase añadida después. El chat devolvió contenido actualizado y un SHA
+  distinto. Pruebas comunicadas por el usuario; no acceso directo del laboratorio
+  a la ventana de Zen.
+- Requisito confirmado: el autor escribe siempre, también al dictar. La IA actúa
+  como editor mediante observaciones y referencias; no genera prosa sustitutiva.
+- Instrucciones aprobadas guardadas en las notas del proyecto privado, junto con
+  contexto y taller actualizados. Borradores intactos. No copiar aquí su contenido.
+- Pendiente: pegar las instrucciones en el proyecto de ChatGPT y comprobar desde
+  el portátil la misma conversación y acceso al libro con la oficina apagada.
+  No declarar completada la continuidad entre equipos ni el proyecto configurado.
+- Dictado y corrector local siguen como propuestas, sin instalar ni probar.
