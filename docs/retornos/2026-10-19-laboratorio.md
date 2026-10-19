@@ -36,3 +36,27 @@
   instalado dictado, herramientas de IA ni servicios nuevos. No es una release.
 - Los textos y detalles del proyecto permanecen en el repositorio privado;
   este portal solo contiene instrucciones y resultados depurados.
+
+## Tercer hito: recepción y taller de escritura en oficina
+
+- Leído el retorno del portátil, incluida su comprobación manual posterior.
+  Copia privada completa de la bóveda creada y leída antes de abrir Obsidian.
+- Obsidian recibió al arrancar la reparación del índice mediante GitHub Sync.
+  Las siete referencias resuelven a escenas existentes. La nota de prueba del
+  portátil coincide byte a byte con el remoto consultado, con tildes y enlace.
+- Queda comprobado el trayecto de la nota original desde el portátil hasta la
+  oficina. Sigue pendiente la edición de Raúl y su subida desde el complemento:
+  la nota todavía contiene esa indicación pendiente. No confundir ambas pruebas.
+- Añadidas dos notas de apoyo en la bóveda: taller de escritura y contexto del
+  asistente literario. Se publicaron únicamente esas notas en el repositorio
+  privado verificado. No se alteró ningún archivo previo del proyecto.
+- Obsidian abierto en el taller; existencia de ventana comprobada. Pendiente la
+  valoración visual de Raúl y la comprobación del panel completo de Longform.
+- Los cambios de estado de ventana y del complemento Longform generados por la
+  app siguen locales; no se incluyeron en el commit privado.
+- No se creó un proyecto de ChatGPT, ni se instalaron dictado o complementos,
+  ni se cambiaron automatismos de sincronización. Las variantes de los borradores
+  siguen conservadas, pendientes de decisión del autor.
+- Próxima sesión en el portátil: conservar cambios propios, recibir las dos
+  notas privadas y abrir el taller. Completar la prueba manual de sincronización
+  antes de dar por terminada la validación entre equipos. Dejar otro retorno.
