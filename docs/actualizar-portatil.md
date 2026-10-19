@@ -1,5 +1,15 @@
 # Actualizar Lavanda en el portátil
 
+## Novedad 0.3.2: atajos y Loupe opcional
+
+Leer [notas 0.3.2](releases/0.3.2.md) y el retorno del laboratorio del 19/10.
+Para recibir solo los nuevos atajos, usar `--only shortcuts` en packages, doctor,
+plan y apply, con aprobación del plan. Super+C abre VS Code (reemplaza copiar
+universal); Super+Shift+C activa el cuentagotas; Super+Shift+N abre Omawrite.
+No reaplicar editors: la variante de VS Code del portátil tiene ajustes propios.
+Loupe es opcional y debe contrastarse con lo ya instalado; no tocar Showtime.
+
+
 ## Novedad 0.3.1: Retroceso en Nautilus
 
 Consultar [notas 0.3.1](releases/0.3.1.md). Proponer el componente `nautilus`

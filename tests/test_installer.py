@@ -95,6 +95,12 @@ class InstallerTest(unittest.TestCase):
         bindings = (self.home / '.config/hypr/bindings.lua').read_text()
         for block in ['SHORTCUTS', 'TRANSMISSION', 'WORKSPACES']:
             self.assertIn('BEGIN OMARCHY LAVANDA ' + block, bindings)
+        for shortcut in ['SUPER + C', 'SUPER + SHIFT + C', 'SUPER + SHIFT + N']:
+            self.assertIn('hl.unbind("' + shortcut + '")', bindings)
+        self.assertIn('o.bind("SUPER + C", "Visual Studio Code"', bindings)
+        self.assertIn('o.bind("SUPER + SHIFT + N", "Omawrite"', bindings)
+        self.assertIn('pkill hyprpicker || hyprpicker -a', bindings)
+        self.assertNotIn('o.bind("SUPER + SHIFT + C", "Visual Studio Code"', bindings)
         bash = (self.home / '.bashrc').read_text()
         self.assertIn('BEGIN OMARCHY LAVANDA INIT', bash)
         self.assertIn('export EDITOR=nano', bash)
@@ -118,6 +124,7 @@ class InstallerTest(unittest.TestCase):
     def test_optional_dependency_selection_includes_nano(self):
         self.assertEqual(m.requested_packages({'editors'}), ['nano'])
         self.assertIn('gvfs-dnssd', m.requested_packages({'utilities'}))
+        self.assertEqual(m.requested_packages({'shortcuts'}), ['hyprpicker', 'wl-clipboard'])
         self.assertEqual(m.requested_packages(set(m.DEFAULT.split(','))), [])
 
     def test_ini_merge_refuses_ambiguous_settings(self):

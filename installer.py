@@ -200,7 +200,7 @@ PACKAGE_GROUPS = {
     'loupe': ['loupe'],
     'nautilus': ['nautilus-python'],
     'editors': ['nano'],
-    'shortcuts': [],
+    'shortcuts': ['hyprpicker', 'wl-clipboard'],
     'transmission': ['transmission-qt'],
     'utilities': ['gnome-clocks', 'age', 'gvfs-dnssd'],
 }
@@ -671,7 +671,7 @@ def dependencies(parts):
         required.update(['foot', 'fc-match'])
     if 'shell' in parts:
         required.update(['bash', 'starship', 'fzf', 'sed'])
-    for part, commands in {'editors': ['nano', 'code', 'git'], 'shortcuts': ['code', 'hyprctl'],
+    for part, commands in {'editors': ['nano', 'code', 'git'], 'shortcuts': ['code', 'hyprctl', 'omawrite', 'hyprpicker', 'wl-copy', 'pkill'],
                            'transmission': ['transmission-qt', 'hyprctl'],
                            'loupe': ['loupe', 'hyprctl'],
                            'utilities': ['gnome-clocks', 'age']}.items():

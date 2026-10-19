@@ -10,6 +10,9 @@ Incluye la configuración que uso y un instalador que **enseña los cambios, gua
 
 ## Actualizar el portátil que ya tiene Lavanda
 
+**0.3.2:** [Atajos de aplicaciones y cuentagotas; Loupe opcional](docs/releases/0.3.2.md).
+Para los nuevos atajos, seleccionar solo `--only shortcuts`.
+
 **0.3.1:** [Retroceso en Nautilus](docs/releases/0.3.1.md). En un portátil con 0.3.0,
 seleccionar solo `--only nautilus` para añadirlo sin tocar los demás ajustes.
 
@@ -59,7 +62,7 @@ Esto último es opcional y aplica también los demás ajustes del tema Tokyo Nig
 | `dock` | Dock inferior lavanda, iconos de 32 px, ampliación sutil hasta unos 37 px, ocultación inteligente e inicio automático; usa una revisión probada de [mi fork](https://github.com/raulchiclano/hyprland-dock). |
 | `icons` | Adwaita al elegir Tokyo Night, mediante una capa de configuración del tema. |
 | `nautilus` | **Opcional:** Retroceso para volver atrás en Archivos sin afectar la edición de texto; requiere nautilus-python y Nautilus 50.x. |
-| `shortcuts` | **Opcional:** Super+Shift+W/C/S para WhatsApp, VS Code y capturas. |
+| `shortcuts` | **Opcional:** Super+C: VS Code; Super+Shift+C: cuentagotas; Super+Shift+N: Omawrite; W/S con Super+Shift: WhatsApp/capturas. |
 | `editors` | **Opcional:** Nano en terminal/Git y VS Code para texto/código. Requiere Nano y `code`. |
 | `transmission` | **Opcional:** Transmission Qt flotante, estilo Lavanda y bandeja. Cerrar la app antes de aplicar. |
 | `utilities` | **Opcional:** comprueba GNOME Clocks, age y gvfs-dnssd; sin cuentas ni secretos. |
@@ -185,8 +188,7 @@ un informe privado que el agente debe completar. Descargar código no instala La
 
 El componente `loupe` instala el visor GTK4 de GNOME, lo asocia a los formatos
 que declara Loupe 50 y abre sus ventanas flotantes y centradas. No cambia las
-asociaciones de vídeo ni instala Showtime. Disponible en la rama principal;
-no forma parte de la etiqueta publicada 0.3.1.
+asociaciones de vídeo ni instala Showtime. Incluido en la versión 0.3.2 como componente opcional.
 
 ```bash
 ./install.sh install-packages --only loupe
