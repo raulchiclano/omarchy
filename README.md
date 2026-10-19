@@ -8,6 +8,9 @@ Incluye la configuración que uso y un instalador que **enseña los cambios, gua
 
 **Para el portátil:** [guía paso a paso](docs/portatil.md), con los últimos paneles, atajos y el fondo personal por separado.
 
+**Próxima sesión de escritura:** [revisar Obsidian, sincronización y Longform](docs/escritura-portatil.md),
+con prueba práctica y retorno al laboratorio. No requiere una instalación nueva.
+
 ## Actualizar el portátil que ya tiene Lavanda
 
 **0.3.2:** [Atajos de aplicaciones y cuentagotas; Loupe opcional](docs/releases/0.3.2.md).

@@ -1,5 +1,13 @@
 # Actualizar Lavanda en el portátil
 
+## Encargo de escritura pendiente — 2026-10-19
+
+Para la próxima sesión, leer [Portátil de escritura](escritura-portatil.md):
+comprobar Obsidian y sincronización, proteger los originales, reparar el índice
+de Longform cuando sea inequívoco y dejar un retorno con la prueba de Raúl.
+Es un encargo documental independiente del instalador; no requiere aplicar todos
+los componentes de Lavanda ni instalar herramientas nuevas.
+
 ## Novedad 0.3.2: atajos y Loupe opcional
 
 Leer [notas 0.3.2](releases/0.3.2.md) y el retorno del laboratorio del 19/10.

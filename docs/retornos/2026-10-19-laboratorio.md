@@ -20,3 +20,19 @@
 - Validación de publicación: 56 pruebas del instalador, búsqueda de emojis,
   sintaxis de install.sh y diff sin errores. Ensayos de aplicación y restauración
   en HOME temporal; validación del portátil pendiente.
+
+## Segundo hito: portátil de escritura
+
+- Raúl solicita preparar la próxima sesión en casa y devolver el resultado por
+  GitHub. Encargo en [escritura-portatil.md](../escritura-portatil.md).
+- Conservar Obsidian, Longform y el historial privado existente. Prioridad:
+  proteger originales, revisar mecanismos de sincronización y reparar el índice
+  del proyecto cuando la solución sea inequívoca. Confirmar el estado en el
+  portátil; no trasladar configuración completa desde el laboratorio.
+- La guía incluye prueba de subida y recuperación de una nota desechable,
+  confirmación manual y plantilla de retorno. La prueba real entre los dos
+  equipos queda pendiente hasta recuperar esa nota en el laboratorio.
+- Sin cambios en la bóveda ni en el escritorio durante este hito. No se han
+  instalado dictado, herramientas de IA ni servicios nuevos. No es una release.
+- Los textos y detalles del proyecto permanecen en el repositorio privado;
+  este portal solo contiene instrucciones y resultados depurados.
