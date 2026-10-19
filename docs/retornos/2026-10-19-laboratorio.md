@@ -60,3 +60,16 @@
 - Próxima sesión en el portátil: conservar cambios propios, recibir las dos
   notas privadas y abrir el taller. Completar la prueba manual de sincronización
   antes de dar por terminada la validación entre equipos. Dejar otro retorno.
+
+## Cuarto hito: validación manual de Longform y sincronización
+
+- Raúl abrió el panel Longform. Su captura muestra las siete entradas del índice
+  en el orden esperado; confirma que entiende cómo navegar entre los capítulos.
+- Editó la nota desechable en Obsidian desde oficina y pulsó el icono de GitHub
+  Sync. Una lectura independiente mediante la API de GitHub confirmó que la frase
+  nueva llegó y que la nota remota coincide byte a byte con la local. PASS.
+- Queda completada la prueba manual de edición y subida desde el complemento en
+  oficina. En casa falta recibir esa edición y comprobarla; no repetir reparaciones
+  ni dar por probado todavía ese último trayecto. Las indicaciones pendientes
+  dentro de la nota de prueba son históricas y deben interpretarse con este retorno.
+- Próximo paso técnico: continuidad del asistente literario entre equipos.
