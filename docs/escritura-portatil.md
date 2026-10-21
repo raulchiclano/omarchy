@@ -1,5 +1,9 @@
 # Portátil de escritura: primera sesión y retorno
 
+**Continuación actual:** leer primero el [traspaso del 21/10](retornos/2026-10-21-laboratorio.md).
+La reparación inicial ya se realizó. Ahora toca comprobar la continuidad real
+de ChatGPT y GitHub desde casa; esta guía conserva el procedimiento de la primera sesión.
+
 Traspaso del laboratorio, 2026-10-19. Estado: preparado, pendiente de ejecutar
 en el portátil. Esta guía no es una versión nueva del instalador de Lavanda.
 

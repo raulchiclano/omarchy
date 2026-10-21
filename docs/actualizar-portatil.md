@@ -2,6 +2,9 @@
 
 ## Encargo de escritura pendiente — 2026-10-19
 
+Actualización del 21/10: [continuidad del editor desde casa](retornos/2026-10-21-laboratorio.md).
+No repetir la reparación del índice ya realizada; seguir la secuencia actual.
+
 Para la próxima sesión, leer [Portátil de escritura](escritura-portatil.md):
 comprobar Obsidian y sincronización, proteger los originales, reparar el índice
 de Longform cuando sea inequívoco y dejar un retorno con la prueba de Raúl.
