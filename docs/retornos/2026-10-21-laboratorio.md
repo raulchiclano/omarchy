@@ -19,9 +19,9 @@ trabajo técnico; la conversación editorial debe continuar en ChatGPT web.
 - Las instrucciones editoriales aprobadas están en las notas del proyecto privado,
   junto con el taller y el contexto. El commit de preparación fue 0efd0f5; es una
   referencia histórica, no una orden de volver a él. Consultar la versión actual.
-- El 21/10 Raúl confirma que todavía NO creó/configuró el proyecto de ChatGPT.
-  Se le guía ahora para hacerlo desde Zen. A falta de otro retorno o confirmación,
-  no darlo por terminado; comprobar su estado real al llegar a casa.
+- Al comenzar el 21/10 el proyecto de ChatGPT seguía pendiente. Después Raúl
+  confirmó «proyecto listo» y aportó la respuesta de validación dentro del proyecto.
+  Véase la comprobación posterior al final de este retorno; no crear otro proyecto.
 - No se han instalado ni probado dictado o corrector local en este flujo.
 - El navegador integrado del laboratorio se atascó en la verificación de acceso;
   Zen permitió continuar. No invertir la sesión en repetir aquel inicio de sesión.
@@ -117,3 +117,24 @@ a AGENTS.md, sin esperar una petición adicional. Si no se puede subir, decirlo.
 
 Los fallos y pendientes forman parte del retorno. No rellenar PASS por inferencia
 ni publicar el enlace de la conversación privada, el contenido del libro o secretos.
+
+## Comprobación posterior del proyecto de ChatGPT
+
+- Raúl confirma que el proyecto está listo y aporta la respuesta a la prueba de
+  reglas editoriales, índice y contexto. La configuración en Zen se conoce por
+  confirmación del usuario; no se inspeccionó directamente esa ventana.
+- La respuesta enumera correctamente las siete entradas del índice y cita dos
+  SHA de archivo. Ambos coinciden con los archivos locales de referencia,
+  comprobados mediante git hash-object. No se publican aquí los contenidos.
+- El editor respeta la autoría de Raúl, no genera prosa sustitutiva y distingue
+  apuntes, variantes e hipótesis. Aclara expresamente que consultar el índice y
+  el contexto no significa haber leído los capítulos. Prueba básica: PASS.
+- Matiz observado: no confundir conservar variantes sin cambios con preferirlas
+  o comprometerse a escoger una. El autor había rechazado ambas; siguen archivadas.
+- Pendiente real en casa: abrir ESE proyecto y ESA conversación, consultar GitHub
+  con la oficina apagada y completar la vuelta de una nueva nota de prueba. No
+  recrear proyecto ni repetir instalación de instrucciones salvo fallo comprobado.
+- Las referencias antiguas a «instrucciones pendientes» dentro de las notas del
+  libro describen el estado anterior a esta confirmación; este retorno lo actualiza.
+- La calidad editorial exhaustiva, el dictado y el corrector local no quedan
+  validados por esta prueba de acceso y obediencia de instrucciones.
