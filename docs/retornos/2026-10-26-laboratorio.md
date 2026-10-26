@@ -13,3 +13,9 @@
 - Catálogo local obsoleto detectado. Consultado catálogo estable real; descargado paquete 26.1021.22027-1, SHA256 y firma oficial verificados, dependencias locales satisfechas. Paquete anterior conservado fuera de la caché para reversión.
 - Actualizado openai-codex-desktop de 26.908.70816-1 a 26.1021.22027-1. Operación finalizada sin errores; versión instalada comprobada y 4155 archivos registrados, ninguno ausente. Sin actualización general del sistema.
 - Pendiente cerrar y reabrir la aplicación y probar una tarea existente y ejecución local. La instalación correcta no acredita aún que la regresión anterior esté resuelta en esta VM.
+
+## Prueba tras reabrir ChatGPT en oficina: PASS básico
+
+- El usuario vuelve a esta misma conversación tras la indicación de cerrar y reabrir la aplicación.
+- Versión instalada 26.1021.22027-1 comprobada de nuevo. Ejecución de herramientas locales correcta; archivo temporal escrito, leído y eliminado con éxito. Repositorio accesible y limpio antes de este registro.
+- La prueba acredita continuidad de esta tarea y ejecución local; no valida todas las funciones ni la recuperación del chat editorial desaparecido.
